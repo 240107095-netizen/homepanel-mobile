@@ -17,5 +17,10 @@
     <string name="library_count">%1$d titles</string>
     <string name="library_empty">Library is empty</string>
     <string name="library_empty_hint">Add movies on the server and they will appear here</string>
+    <string name="library_search_hint">/ search library…</string>
+    <string name="library_not_found">Nothing found for “%1$s”</string>
+    <string name="filter_all">All</string>
+    <string name="filter_movies">Movies</string>
+    <string name="filter_series">Series</string>
     <string name="error_load_library">Could not load the library</string>
 </resources>
