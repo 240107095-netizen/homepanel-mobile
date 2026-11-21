@@ -2,6 +2,7 @@ package com.example.homepanel.data.network.dto
 
 import com.example.homepanel.data.model.MediaStatus
 import com.example.homepanel.data.model.SearchResult
+import com.example.homepanel.data.model.TitleInfo
 import com.example.homepanel.data.model.TitleType
 import kotlinx.serialization.Serializable
 
@@ -25,6 +26,44 @@ data class SeerrResult(
 // status: 1 неизвестно, 2 ждёт одобрения, 3 качается, 4 частично есть, 5 есть
 @Serializable
 data class SeerrMediaInfo(val status: Int = 1)
+
+// Подробности тайтла (/movie/{id} или /tv/{id})
+@Serializable
+data class SeerrDetails(
+    val id: Int,
+    val title: String? = null,
+    val name: String? = null,
+    val originalTitle: String? = null,
+    val originalName: String? = null,
+    val originalLanguage: String? = null,
+    val releaseDate: String? = null,
+    val firstAirDate: String? = null,
+    val genres: List<SeerrGenre> = emptyList(),
+    val externalIds: SeerrExternalIds? = null,
+)
+
+@Serializable
+data class SeerrGenre(val id: Int)
+
+@Serializable
+data class SeerrExternalIds(val tvdbId: Int? = null)
+
+private const val ANIMATION_GENRE = 16
+
+// en — ответ на английском, local — на языке интерфейса (для онлайн-сайтов)
+fun detailsToTitleInfo(en: SeerrDetails, local: SeerrDetails, type: TitleType): TitleInfo {
+    val date = en.releaseDate ?: en.firstAirDate
+    return TitleInfo(
+        tmdbId = en.id,
+        type = type,
+        name = local.title ?: local.name ?: "",
+        englishName = en.title ?: en.name ?: "",
+        originalName = en.originalTitle ?: en.originalName ?: "",
+        year = date?.take(4)?.toIntOrNull(),
+        isAnime = en.originalLanguage == "ja" && en.genres.any { it.id == ANIMATION_GENRE },
+        tvdbId = en.externalIds?.tvdbId,
+    )
+}
 
 @Serializable
 data class SeerrStatus(val version: String = "")
