@@ -14,6 +14,12 @@ object Routes {
     const val ARG_ITEM_ID = "itemId"
     const val TITLE = "title/{$ARG_ITEM_ID}"
     fun title(itemId: String) = "title/$itemId"
+
+    // Экран сезона: два аргумента — сериал и сезон
+    const val ARG_SERIES_ID = "seriesId"
+    const val ARG_SEASON_ID = "seasonId"
+    const val SEASON = "season/{$ARG_SERIES_ID}/{$ARG_SEASON_ID}"
+    fun season(seriesId: String, seasonId: String) = "season/$seriesId/$seasonId"
 }
 
 // Вкладки нижней панели: маршрут, подпись и текстовый значок

@@ -28,6 +28,7 @@ import com.example.homepanel.R
 import com.example.homepanel.ui.components.EmptyState
 import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.library.LibraryScreen
+import com.example.homepanel.ui.season.SeasonScreen
 import com.example.homepanel.ui.theme.tui
 import com.example.homepanel.ui.title.TitleScreen
 
@@ -62,7 +63,19 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
                 arguments = listOf(navArgument(Routes.ARG_ITEM_ID) { type = NavType.StringType }),
             ) {
                 // itemId сам попадёт во ViewModel через SavedStateHandle
-                TitleScreen(onBack = { navController.navigateUp() })
+                TitleScreen(
+                    onBack = { navController.navigateUp() },
+                    onSeasonClick = { season -> navController.navigate(Routes.season(season.seriesId, season.id)) },
+                )
+            }
+            composable(
+                route = Routes.SEASON,
+                arguments = listOf(
+                    navArgument(Routes.ARG_SERIES_ID) { type = NavType.StringType },
+                    navArgument(Routes.ARG_SEASON_ID) { type = NavType.StringType },
+                ),
+            ) {
+                SeasonScreen(onBack = { navController.navigateUp() })
             }
             composable(Routes.DOWNLOADS) { PlaceholderScreen(stringResource(R.string.downloads_title)) }
             composable(Routes.SEARCH) { PlaceholderScreen(stringResource(R.string.search_title)) }
