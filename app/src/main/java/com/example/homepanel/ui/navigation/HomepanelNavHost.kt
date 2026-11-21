@@ -1,0 +1,104 @@
+package com.example.homepanel.ui.navigation
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.homepanel.R
+import com.example.homepanel.ui.components.EmptyState
+import com.example.homepanel.ui.components.TopStatusBar
+import com.example.homepanel.ui.library.LibraryScreen
+import com.example.homepanel.ui.theme.tui
+
+// Корень интерфейса: Scaffold с нижней панелью и NavHost со всеми экранами
+@Composable
+fun HomepanelApp(navController: NavHostController = rememberNavController()) {
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val destination = backStackEntry?.destination
+    // Нижняя панель видна только на экранах-вкладках, на вложенных — стрелка назад
+    val showBottomBar = TopTab.entries.any { it.route == destination?.route }
+
+    Scaffold(
+        bottomBar = {
+            if (showBottomBar) {
+                BottomBar(
+                    isSelected = { tab -> destination?.hierarchy?.any { it.route == tab.route } == true },
+                    onSelect = { tab -> navController.navigateToTab(tab) },
+                )
+            }
+        },
+    ) { padding ->
+        NavHost(
+            navController = navController,
+            startDestination = Routes.LIBRARY,
+            modifier = Modifier.padding(padding),
+        ) {
+            composable(Routes.LIBRARY) {
+                LibraryScreen(onTitleClick = { /* экран тайтла — следующий шаг */ })
+            }
+            composable(Routes.DOWNLOADS) { PlaceholderScreen(stringResource(R.string.downloads_title)) }
+            composable(Routes.SEARCH) { PlaceholderScreen(stringResource(R.string.search_title)) }
+            composable(Routes.SERVER) { PlaceholderScreen(stringResource(R.string.server_title)) }
+        }
+    }
+}
+
+// Переход на вкладку: не копим одинаковые экраны в стеке и помним состояние вкладок
+private fun NavHostController.navigateToTab(tab: TopTab) {
+    navigate(tab.route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+@Composable
+private fun BottomBar(isSelected: (TopTab) -> Boolean, onSelect: (TopTab) -> Unit) {
+    Column {
+        HorizontalDivider(color = MaterialTheme.tui.line)
+        NavigationBar(containerColor = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
+            TopTab.entries.forEach { tab ->
+                NavigationBarItem(
+                    selected = isSelected(tab),
+                    onClick = { onSelect(tab) },
+                    icon = { Text(tab.glyph, style = MaterialTheme.typography.titleMedium) },
+                    label = { Text(stringResource(tab.label), style = MaterialTheme.typography.labelSmall) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.tui.boost,
+                        unselectedIconColor = MaterialTheme.tui.muted,
+                        unselectedTextColor = MaterialTheme.tui.muted,
+                    ),
+                )
+            }
+        }
+    }
+}
+
+// Временная заглушка для вкладок, которые ещё не готовы
+@Composable
+private fun PlaceholderScreen(title: String) {
+    Column(Modifier.fillMaxSize()) {
+        TopStatusBar(title = title)
+        EmptyState(stringResource(R.string.coming_soon))
+    }
+}
