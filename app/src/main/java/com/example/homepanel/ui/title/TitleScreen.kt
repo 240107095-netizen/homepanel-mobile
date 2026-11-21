@@ -91,7 +91,7 @@ fun TitleContent(
 @Composable
 private fun TitleHeader(title: Title) {
     Row(Modifier.padding(12.dp)) {
-        Poster(name = title.name, width = 110.dp)
+        Poster(name = title.name, url = title.posterUrl, width = 110.dp)
         Spacer(Modifier.width(12.dp))
         Column {
             Text(title.name, style = MaterialTheme.typography.titleMedium)

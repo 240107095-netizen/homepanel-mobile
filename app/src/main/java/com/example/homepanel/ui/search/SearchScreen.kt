@@ -121,7 +121,7 @@ private fun SearchResultRow(item: SearchResult, onRequest: () -> Unit) {
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Poster(name = item.name, width = 52.dp)
+        Poster(name = item.name, url = item.posterUrl, width = 52.dp)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(item.name, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)

@@ -51,7 +51,8 @@ data class JfSystemInfo(
 // 1 тик Jellyfin = 100 нс, в минуте 600 000 000 тиков
 private const val TICKS_PER_MINUTE = 600_000_000L
 
-fun JfItem.toTitle(): Title {
+// baseUrl нужен, чтобы собрать адрес постера
+fun JfItem.toTitle(baseUrl: String): Title {
     val isSeries = type == "Series"
     val ud = userData
     return Title(
@@ -66,9 +67,13 @@ fun JfItem.toTitle(): Title {
         playedPercent = if (ud?.played == true) 100 else (ud?.playedPercentage ?: 0.0).toInt(),
         episodeCount = if (isSeries) recursiveItemCount ?: 0 else 0,
         unplayedCount = if (isSeries) ud?.unplayedItemCount ?: 0 else 0,
-        hasPoster = "Primary" in imageTags,
+        posterUrl = if ("Primary" in imageTags) posterUrl(baseUrl, id) else null,
     )
 }
+
+// Ключ в URL не кладём: его добавит ApiKeyInterceptor в заголовок
+fun posterUrl(baseUrl: String, itemId: String) =
+    "${baseUrl.trimEnd('/')}/Items/$itemId/Images/Primary?maxWidth=400"
 
 fun JfItem.toSeason(seriesId: String) = Season(
     id = id,

@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit
 // ViewModel получают репозиторий отсюда, а не создают его сами.
 interface AppContainer {
     val repository: MediaRepository
+    val httpClient: OkHttpClient
 }
 
 class DefaultAppContainer : AppContainer {
@@ -24,7 +25,7 @@ class DefaultAppContainer : AppContainer {
     private val json = Json { ignoreUnknownKeys = true }
 
     // Один HTTP-клиент на все сервисы; каждый перехватчик добавляет ключ только своему сервису
-    val httpClient: OkHttpClient by lazy {
+    override val httpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(
                 ApiKeyInterceptor(
@@ -51,6 +52,7 @@ class DefaultAppContainer : AppContainer {
         } else {
             NetworkMediaRepository(
                 jellyfin = retrofit(BuildConfig.JELLYFIN_URL).create(JellyfinApi::class.java),
+                jellyfinUrl = BuildConfig.JELLYFIN_URL,
                 fallback = demo,
             )
         }

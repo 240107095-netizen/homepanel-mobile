@@ -16,7 +16,7 @@ data class Title(
     val playedPercent: Int,        // фильм: сколько досмотрели, 0..100
     val episodeCount: Int,         // сериал: сколько серий есть
     val unplayedCount: Int,        // сериал: сколько не смотрели
-    val hasPoster: Boolean,
+    val posterUrl: String?,        // null — постера нет, показываем заглушку
 )
 
 // Сезон сериала

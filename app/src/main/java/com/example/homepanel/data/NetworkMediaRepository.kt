@@ -17,6 +17,7 @@ import kotlinx.coroutines.sync.withLock
 // Остальное пока берётся у fallback (демо), сервисы подключаются по одному.
 class NetworkMediaRepository(
     private val jellyfin: JellyfinApi,
+    private val jellyfinUrl: String,
     private val fallback: MediaRepository,
 ) : MediaRepository {
 
@@ -29,10 +30,10 @@ class NetworkMediaRepository(
     }
 
     override suspend fun getLibrary(): List<Title> =
-        jellyfin.items(userId()).items.map { it.toTitle() }
+        jellyfin.items(userId()).items.map { it.toTitle(jellyfinUrl) }
 
     override suspend fun getTitle(id: String): Title =
-        jellyfin.items(userId(), ids = id).items.first().toTitle()
+        jellyfin.items(userId(), ids = id).items.first().toTitle(jellyfinUrl)
 
     override suspend fun getSeasons(seriesId: String): List<Season> =
         jellyfin.seasons(seriesId, userId()).items.map { it.toSeason(seriesId) }

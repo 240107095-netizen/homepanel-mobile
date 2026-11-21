@@ -120,6 +120,6 @@ class FakeMediaRepository(private val latencyMs: Long = 400) : MediaRepository {
         id = id, type = type, name = name, originalName = original, year = year,
         overview = "Описание тайтла «$name». На настоящем сервере оно приходит из Jellyfin.",
         rating = rating, played = played, playedPercent = percent,
-        episodeCount = episodes, unplayedCount = unplayed, hasPoster = false,
+        episodeCount = episodes, unplayedCount = unplayed, posterUrl = null,
     )
 }
