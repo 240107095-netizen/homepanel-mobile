@@ -3,10 +3,14 @@ package com.example.homepanel.data
 import com.example.homepanel.BuildConfig
 import com.example.homepanel.data.network.ApiKeyInterceptor
 import com.example.homepanel.data.network.JellyfinApi
+import com.example.homepanel.data.network.MemoryCookieJar
+import com.example.homepanel.data.network.QbitApi
+import com.example.homepanel.data.network.QbitClient
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -34,6 +38,7 @@ class DefaultAppContainer : AppContainer {
                     "MediaBrowser Token=\"${BuildConfig.JELLYFIN_KEY}\"",
                 ),
             )
+            .cookieJar(MemoryCookieJar())  // сессия qBittorrent
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
             .build()
@@ -42,6 +47,7 @@ class DefaultAppContainer : AppContainer {
     private fun retrofit(baseUrl: String): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl.trimEnd('/') + "/")
         .client(httpClient)
+        .addConverterFactory(ScalarsConverterFactory.create())  // ответы-строки («Ok.», версия)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 
@@ -53,6 +59,11 @@ class DefaultAppContainer : AppContainer {
             NetworkMediaRepository(
                 jellyfin = retrofit(BuildConfig.JELLYFIN_URL).create(JellyfinApi::class.java),
                 jellyfinUrl = BuildConfig.JELLYFIN_URL,
+                qbit = QbitClient(
+                    retrofit(BuildConfig.QBIT_URL).create(QbitApi::class.java),
+                    BuildConfig.QBIT_USER,
+                    BuildConfig.QBIT_PASSWORD,
+                ),
                 fallback = demo,
             )
         }
