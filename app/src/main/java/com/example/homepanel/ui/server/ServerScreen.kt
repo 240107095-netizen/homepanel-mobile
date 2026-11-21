@@ -84,7 +84,7 @@ private fun DiskSection(status: ServerStatus) {
     SectionTitle(stringResource(R.string.server_disk))
     val fraction = if (status.diskTotalBytes > 0) status.diskUsedBytes.toFloat() / status.diskTotalBytes else 0f
     val kind = if (fraction > 0.9f) StatusKind.ERROR else StatusKind.ACTIVE
-    TuiProgress(fraction, width = 20, color = kind.color())
+    TuiProgress(fraction, width = 220.dp, cells = 28, color = kind.color())
     Text(
         stringResource(
             R.string.server_disk_usage,

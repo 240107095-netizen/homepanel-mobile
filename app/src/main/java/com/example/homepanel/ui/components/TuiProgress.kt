@@ -1,51 +1,53 @@
 package com.example.homepanel.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.homepanel.ui.formatPercent
 import com.example.homepanel.ui.theme.tui
 
-// Полоска из символов блоков + процент: «████████▌      54%».
-// Восьмые доли блока дают плавность даже на узкой полоске.
-private val partials = listOf("", "▏", "▎", "▍", "▌", "▋", "▊", "▉")
-
-fun progressBarText(fraction: Float, width: Int): Pair<String, String> {
-    val f = fraction.coerceIn(0f, 1f)
-    val eighths = (f * width * 8).toInt()
-    val full = eighths / 8
-    val filled = "█".repeat(full) + if (full < width) partials[eighths % 8] else ""
-    return filled to "░".repeat((width - filled.length).coerceAtLeast(0))
-}
-
+// Полоска «████▌░░░░ 54%» фиксированной ширины. Рисуем на Canvas ячейками,
+// как блоки в терминале: символы █/░ в разных шрифтах разной ширины и полоски «прыгали».
 @Composable
 fun TuiProgress(
     fraction: Float,
     modifier: Modifier = Modifier,
-    width: Int = 16,
+    width: Dp = 160.dp,
+    cells: Int = 20,
     color: Color = MaterialTheme.colorScheme.primary,
 ) {
-    val (filled, empty) = progressBarText(fraction, width)
     val track = MaterialTheme.tui.line
-    Row(modifier) {
-        Text(
-            buildAnnotatedString {
-                withStyle(SpanStyle(color = color)) { append(filled) }
-                withStyle(SpanStyle(color = track)) { append(empty) }
-            },
-            style = MaterialTheme.typography.bodyMedium,
-        )
+    val f = fraction.coerceIn(0f, 1f)
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Canvas(
+            Modifier
+                .width(width)
+                .height(10.dp),
+        ) {
+            val gap = 2.dp.toPx()
+            val cell = (size.width - gap * (cells - 1)) / cells
+            for (i in 0 until cells) {
+                val x = i * (cell + gap)
+                // Сколько этой ячейки заполнено: 0..1 (последняя может быть частичной)
+                val fill = (f * cells - i).coerceIn(0f, 1f)
+                drawRect(track, Offset(x, 0f), Size(cell, size.height))
+                if (fill > 0f) drawRect(color, Offset(x, 0f), Size(cell * fill, size.height))
+            }
+        }
         Spacer(Modifier.width(8.dp))
         // Процент фиксированной ширины, чтобы строка не прыгала при обновлении
-        Text(formatPercent(fraction).padStart(4), style = MaterialTheme.typography.bodyMedium)
+        Text(formatPercent(f).padStart(4), style = MaterialTheme.typography.bodyMedium)
     }
 }

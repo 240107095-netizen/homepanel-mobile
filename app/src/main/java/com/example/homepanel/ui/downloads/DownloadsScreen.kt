@@ -140,7 +140,7 @@ private fun Torrent.kind() = when (state) {
 private fun TorrentBadge(state: TorrentState, kind: StatusKind) {
     val (icon, label) = when (state) {
         TorrentState.DOWNLOADING -> "▶" to R.string.torrent_downloading
-        TorrentState.PAUSED -> "⏸" to R.string.torrent_paused
+        TorrentState.PAUSED -> "⏸\uFE0E" to R.string.torrent_paused
         TorrentState.DONE -> "✓" to R.string.torrent_done
         TorrentState.ERROR -> "✗" to R.string.torrent_error
     }
