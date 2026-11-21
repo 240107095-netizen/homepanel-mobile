@@ -91,7 +91,6 @@
 
     <!-- сервер -->
     <string name="server_title">Сервер</string>
-    <string name="server_name">Хост</string>
     <string name="server_disk">Диск</string>
     <string name="server_disk_usage">%1$s из %2$s · свободно %3$s</string>
     <string name="server_services">Сервисы</string>

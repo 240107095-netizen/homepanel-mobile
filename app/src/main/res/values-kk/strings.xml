@@ -87,7 +87,6 @@
 
     <!-- сервер -->
     <string name="server_title">Сервер</string>
-    <string name="server_name">Хост</string>
     <string name="server_disk">Диск</string>
     <string name="server_disk_usage">%2$s ішінен %1$s · бос %3$s</string>
     <string name="server_services">Қызметтер</string>
