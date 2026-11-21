@@ -1,0 +1,102 @@
+<resources>
+    <!-- общие -->
+    <string name="loading">Загрузка…</string>
+    <string name="retry">Повторить</string>
+    <string name="back">Назад</string>
+    <string name="stale">нет связи</string>
+    <string name="error_no_connection">Нет связи с сервером. Он включён и вы в домашнем Wi-Fi?</string>
+    <string name="error_auth">Сервер не принял API-ключ. Проверьте local.properties</string>
+    <string name="error_server">Сервер вернул ошибку, попробуйте позже</string>
+    <string name="error_bad_response">Сервер прислал непонятный ответ</string>
+
+    <!-- вкладки -->
+    <string name="tab_library">Библиотека</string>
+    <string name="tab_downloads">Загрузки</string>
+    <string name="tab_search">Найти</string>
+    <string name="tab_server">Сервер</string>
+
+    <!-- тайтлы -->
+    <string name="type_movie">фильм</string>
+    <string name="type_series">сериал</string>
+    <string name="badge_watched">просмотрено</string>
+    <string name="badge_new">новое</string>
+
+    <plurals name="episodes">
+        <item quantity="one">%d серия</item>
+        <item quantity="few">%d серии</item>
+        <item quantity="many">%d серий</item>
+        <item quantity="other">%d серии</item>
+    </plurals>
+
+    <!-- экран тайтла -->
+    <string name="title_seasons">Сезоны</string>
+    <string name="title_no_overview">Нет описания</string>
+    <string name="title_more">ещё…</string>
+    <string name="title_less">свернуть</string>
+    <string name="season_watched">просмотрен</string>
+    <string name="season_progress">%1$d из %2$d</string>
+    <string name="season_number">Сезон %1$d</string>
+    <string name="episode_minutes">%1$d мин</string>
+    <string name="season_empty">В этом сезоне пока нет серий</string>
+    <string name="error_load_season">Не удалось загрузить серии</string>
+    <string name="error_load_title">Не удалось загрузить тайтл</string>
+
+    <!-- библиотека -->
+    <string name="library_title">Библиотека</string>
+    <plurals name="library_count">
+        <item quantity="one">%d тайтл</item>
+        <item quantity="few">%d тайтла</item>
+        <item quantity="many">%d тайтлов</item>
+        <item quantity="other">%d тайтла</item>
+    </plurals>
+    <string name="library_empty">Библиотека пуста</string>
+    <string name="library_empty_hint">Добавьте фильмы на сервер, и они появятся здесь</string>
+    <string name="library_search_hint">/ поиск по библиотеке…</string>
+    <string name="library_not_found">По запросу «%1$s» ничего нет</string>
+    <string name="filter_all">Все</string>
+    <string name="filter_movies">Фильмы</string>
+    <string name="filter_series">Сериалы</string>
+    <string name="error_load_library">Не удалось загрузить библиотеку</string>
+
+    <!-- загрузки -->
+    <string name="downloads_title">Загрузки</string>
+    <string name="downloads_empty">Нет загрузок</string>
+    <string name="downloads_empty_hint">Найдите новый тайтл во вкладке «Найти»</string>
+    <string name="torrent_downloading">качается</string>
+    <string name="torrent_paused">пауза</string>
+    <string name="torrent_done">готово</string>
+    <string name="torrent_error">ошибка</string>
+    <string name="torrent_eta">осталось %1$s</string>
+    <string name="action_pause">Пауза</string>
+    <string name="action_resume">Старт</string>
+    <string name="msg_paused">⏸︎ %1$s — на паузе</string>
+    <string name="msg_resumed">▶ %1$s — продолжено</string>
+    <string name="msg_action_failed">✗ Сервер отказал, ничего не изменилось</string>
+    <string name="error_load_downloads">Не удалось загрузить список загрузок</string>
+
+    <!-- поиск -->
+    <string name="search_title">Найти новое</string>
+    <string name="search_hint">/ название фильма или сериала…</string>
+    <string name="search_idle">Введите название для поиска в TMDB</string>
+    <string name="search_idle_hint">Найденное можно запросить — сервер скачает сам</string>
+    <string name="search_nothing">По запросу «%1$s» ничего нет</string>
+    <string name="status_available">в библиотеке</string>
+    <string name="status_requested">запрошено</string>
+    <string name="action_request">Запросить</string>
+    <string name="request_confirm_title">Запросить «%1$s»?</string>
+    <string name="request_confirm_text">Сервер начнёт искать раздачу и скачает её в библиотеку. Следить можно во вкладке «Загрузки».</string>
+    <string name="cancel">Отмена</string>
+    <string name="msg_requested">✓ %1$s — запрошено</string>
+    <string name="error_search">Поиск недоступен</string>
+
+    <!-- сервер -->
+    <string name="server_title">Сервер</string>
+    <string name="server_name">Хост</string>
+    <string name="server_disk">Диск</string>
+    <string name="server_disk_usage">%1$s из %2$s · свободно %3$s</string>
+    <string name="server_services">Сервисы</string>
+    <string name="service_online">работает</string>
+    <string name="service_offline">не отвечает</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="error_load_server">Сервер не отвечает</string>
+</resources>
