@@ -6,8 +6,6 @@
     <string name="retry">Retry</string>
     <string name="back">Back</string>
 
-    <string name="coming_soon">This screen is in progress</string>
-
     <!-- вкладки -->
     <string name="tab_library">Library</string>
     <string name="tab_downloads">Downloads</string>
@@ -69,6 +67,18 @@
 
     <!-- поиск -->
     <string name="search_title">Find new</string>
+    <string name="search_hint">/ movie or series title…</string>
+    <string name="search_idle">Type a title to search TMDB</string>
+    <string name="search_idle_hint">Found titles can be requested — the server downloads them itself</string>
+    <string name="search_nothing">Nothing found for “%1$s”</string>
+    <string name="status_available">in library</string>
+    <string name="status_requested">requested</string>
+    <string name="action_request">Request</string>
+    <string name="request_confirm_title">Request “%1$s”?</string>
+    <string name="request_confirm_text">The server will start looking for a release and download it into the library. You can follow it in Downloads.</string>
+    <string name="cancel">Cancel</string>
+    <string name="msg_requested">✓ %1$s — requested</string>
+    <string name="error_search">Search is not available</string>
 
     <!-- сервер -->
     <string name="server_title">Server</string>

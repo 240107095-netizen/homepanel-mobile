@@ -1,7 +1,6 @@
 package com.example.homepanel.ui.navigation
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -24,11 +23,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.homepanel.R
-import com.example.homepanel.ui.components.EmptyState
-import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.downloads.DownloadsScreen
 import com.example.homepanel.ui.library.LibraryScreen
+import com.example.homepanel.ui.search.SearchScreen
 import com.example.homepanel.ui.season.SeasonScreen
 import com.example.homepanel.ui.server.ServerScreen
 import com.example.homepanel.ui.theme.tui
@@ -80,7 +77,7 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
                 SeasonScreen(onBack = { navController.navigateUp() })
             }
             composable(Routes.DOWNLOADS) { DownloadsScreen() }
-            composable(Routes.SEARCH) { PlaceholderScreen(stringResource(R.string.search_title)) }
+            composable(Routes.SEARCH) { SearchScreen() }
             composable(Routes.SERVER) { ServerScreen() }
         }
     }
@@ -119,11 +116,3 @@ private fun BottomBar(isSelected: (TopTab) -> Boolean, onSelect: (TopTab) -> Uni
     }
 }
 
-// Временная заглушка для вкладок, которые ещё не готовы
-@Composable
-private fun PlaceholderScreen(title: String) {
-    Column(Modifier.fillMaxSize()) {
-        TopStatusBar(title = title)
-        EmptyState(stringResource(R.string.coming_soon))
-    }
-}

@@ -1,6 +1,5 @@
 package com.example.homepanel.ui.downloads
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -12,15 +11,13 @@ import com.example.homepanel.data.MediaRepository
 import com.example.homepanel.data.model.Torrent
 import com.example.homepanel.data.model.TorrentState
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.UserMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-// Короткое сообщение внизу экрана (snackbar): строка + имя раздачи
-data class UserMessage(@StringRes val text: Int, val arg: String? = null)
 
 data class DownloadsUiState(
     val torrents: UiState<List<Torrent>> = UiState.Loading,
