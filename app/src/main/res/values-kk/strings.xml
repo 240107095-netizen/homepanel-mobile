@@ -123,4 +123,13 @@
     <string name="filter_voice_ru">Орысша</string>
     <string name="filter_voice_orig">Түпнұсқа</string>
     <string name="sources_filtered_out">Сүзгілерге ештеңе сәйкес келмейді</string>
+    <string name="grab_title">«%1$s» жүктеу керек пе?</string>
+    <string name="grab_goes_to">%1$s қызметіне кетеді → «Жүктеулер» бөлімінде пайда болады. Файл кітапханаға өзі түседі.</string>
+    <string name="grab_new_title">%1$s ішінде әлі жоқ — мына сапа профилімен қосамын:</string>
+    <string name="grab_checking">Кітапхананы тексеріп жатырмын…</string>
+    <string name="action_download">Жүктеу</string>
+    <string name="grab_in_progress">Таратуды %1$s қызметіне беріп жатырмын… бір минутқа дейін</string>
+    <string name="msg_grabbed">▶ %1$s — жіберілді, барысы «Жүктеулер» бөлімінде</string>
+    <string name="msg_release_not_found">✗ Қызмет бұл таратуды көрмеді — басқасын таңдаңыз</string>
+    <string name="msg_grab_failed">✗ Жүктелмеді</string>
 </resources>

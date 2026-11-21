@@ -130,4 +130,13 @@
     <string name="filter_voice_ru">Russian</string>
     <string name="filter_voice_orig">Original</string>
     <string name="sources_filtered_out">No releases match the filters</string>
+    <string name="grab_title">Download “%1$s”?</string>
+    <string name="grab_goes_to">Goes to %1$s → appears in Downloads. The file lands in the library by itself.</string>
+    <string name="grab_new_title">Not in %1$s yet — it will be added with the quality profile:</string>
+    <string name="grab_checking">Checking the library…</string>
+    <string name="action_download">Download</string>
+    <string name="grab_in_progress">Handing the release to %1$s… up to a minute</string>
+    <string name="msg_grabbed">▶ %1$s — sent, see Downloads</string>
+    <string name="msg_release_not_found">✗ The service didn\'t see this release — pick another one</string>
+    <string name="msg_grab_failed">✗ Could not download</string>
 </resources>

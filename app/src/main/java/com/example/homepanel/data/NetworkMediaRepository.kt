@@ -133,6 +133,7 @@ class NetworkMediaRepository(
         // Без подзаголовка раздачи находятся чаще
         if (found.isEmpty()) info.shortQuery?.let { found = prowlarr.search(it, categories) }
         return found.map { it.toRelease() }
+            .distinctBy { it.guid }
             .filter { info.isAnime || it.indexer !in ANIME_ONLY_INDEXERS }
             .sortedWith(compareByDescending<Release> { it.seeders }.thenByDescending { it.sizeBytes })
     }

@@ -127,4 +127,13 @@
     <string name="filter_voice_ru">Русская</string>
     <string name="filter_voice_orig">Оригинал</string>
     <string name="sources_filtered_out">Под фильтры ничего не подходит</string>
+    <string name="grab_title">Скачать «%1$s»?</string>
+    <string name="grab_goes_to">Уйдёт в %1$s → появится в «Загрузках». Файл сам попадёт в библиотеку.</string>
+    <string name="grab_new_title">В %1$s его ещё нет — добавлю с профилем качества:</string>
+    <string name="grab_checking">Проверяю библиотеку…</string>
+    <string name="action_download">Скачать</string>
+    <string name="grab_in_progress">Передаю раздачу в %1$s… до минуты</string>
+    <string name="msg_grabbed">▶ %1$s — отправлено, прогресс в «Загрузках»</string>
+    <string name="msg_release_not_found">✗ Сервис не увидел эту раздачу — выберите другую</string>
+    <string name="msg_grab_failed">✗ Не скачалось</string>
 </resources>

@@ -1,21 +1,32 @@
 package com.example.homepanel.ui.sources
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,8 +41,10 @@ import com.example.homepanel.ui.components.EmptyState
 import com.example.homepanel.ui.components.ErrorState
 import com.example.homepanel.ui.components.LoadingState
 import com.example.homepanel.ui.components.Poster
+import com.example.homepanel.ui.components.StatusBadge
 import com.example.homepanel.ui.components.StatusKind
 import com.example.homepanel.ui.components.TopStatusBar
+import com.example.homepanel.ui.components.TuiButton
 import com.example.homepanel.ui.components.TuiTabs
 import com.example.homepanel.ui.components.color
 import com.example.homepanel.ui.formatBytes
@@ -44,6 +57,17 @@ fun SourcesScreen(
     viewModel: SourcesViewModel = viewModel(factory = SourcesViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    LaunchedEffect(state.message) {
+        state.message?.let { msg ->
+            snackbar.showSnackbar(context.getString(msg.text, msg.arg))
+            viewModel.onMessageShown()
+        }
+    }
+
+    Box(modifier.fillMaxSize()) {
     SourcesContent(
         state = state,
         onBack = onBack,
@@ -53,8 +77,20 @@ fun SourcesScreen(
         onTabChange = viewModel::onTabChange,
         onQualityChange = viewModel::onQualityChange,
         onVoiceChange = viewModel::onVoiceChange,
-        modifier = modifier,
+        onReleaseClick = viewModel::onReleaseClick,
     )
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
+    }
+
+    state.grab?.let { dialog ->
+        GrabDialog(
+            heading = state.heading,
+            dialog = dialog,
+            onProfileSelect = viewModel::onProfileSelect,
+            onConfirm = viewModel::confirmGrab,
+            onDismiss = viewModel::dismissGrab,
+        )
+    }
 }
 
 @Composable
@@ -73,6 +109,12 @@ fun SourcesContent(
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = state.heading, onBack = onBack)
+        // Раздача передаётся в Radarr/Sonarr — строка прогресса, экран остаётся живым
+        state.grabbing?.let { service ->
+            Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
+                StatusBadge("▶", stringResource(R.string.grab_in_progress, service), StatusKind.ACTIVE)
+            }
+        }
         when (val info = state.info) {
             UiState.Loading -> LoadingState(text = stringResource(R.string.sources_title_loading))
             is UiState.Error -> ErrorState(stringResource(info.message), onRetryInfo)
@@ -95,6 +137,62 @@ fun SourcesContent(
             }
         }
     }
+}
+
+// Подтверждение с последствиями: куда уйдёт раздача, сколько весит, с каким профилем добавится
+@Composable
+private fun GrabDialog(
+    heading: String,
+    dialog: GrabDialogState,
+    onProfileSelect: (Int) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val r = dialog.release
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RectangleShape,
+        containerColor = MaterialTheme.tui.boost,
+        title = { Text(stringResource(R.string.grab_title, heading), style = MaterialTheme.typography.titleMedium) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(releaseHeadline(r), style = MaterialTheme.typography.titleSmall)
+                Text(
+                    listOf(formatBytes(r.sizeBytes), r.indexer, "▲ ${r.seeders}").joinToString(" · "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.tui.muted,
+                )
+                Text(r.title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.tui.muted)
+                Spacer(Modifier.height(10.dp))
+                Text(stringResource(R.string.grab_goes_to, dialog.service), style = MaterialTheme.typography.bodyMedium)
+                when {
+                    dialog.checking -> {
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.grab_checking), color = MaterialTheme.tui.muted)
+                    }
+                    dialog.profiles != null -> {
+                        Spacer(Modifier.height(10.dp))
+                        Text(stringResource(R.string.grab_new_title, dialog.service), style = MaterialTheme.typography.bodyMedium)
+                        dialog.profiles.forEach { p ->
+                            val selected = p.id == dialog.selectedProfile
+                            Text(
+                                (if (selected) "◉ " else "○ ") + p.name,
+                                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onProfileSelect(p.id) }
+                                    .padding(vertical = 6.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TuiButton(stringResource(R.string.action_download), onConfirm, enabled = !dialog.checking)
+        },
+        dismissButton = { TuiButton(stringResource(R.string.cancel), onDismiss, color = MaterialTheme.tui.muted) },
+    )
 }
 
 // «Trackers · 42» — сколько нашлось, «…» — ещё ищет

@@ -11,10 +11,13 @@ import com.example.homepanel.HomepanelApplication
 import com.example.homepanel.R
 import com.example.homepanel.data.MediaRepository
 import com.example.homepanel.data.model.OnlineResult
+import com.example.homepanel.data.model.QualityProfile
 import com.example.homepanel.data.model.Release
+import com.example.homepanel.data.model.ReleaseNotFoundException
 import com.example.homepanel.data.model.TitleInfo
 import com.example.homepanel.data.model.TitleType
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.UserMessage
 import com.example.homepanel.ui.navigation.Routes
 import com.example.homepanel.ui.toErrorMessage
 import kotlinx.coroutines.CancellationException
@@ -38,11 +41,23 @@ data class SourcesUiState(
     val online: UiState<List<OnlineResult>> = UiState.Loading,
     val quality: QualityFilter = QualityFilter.ANY,
     val voice: VoiceFilter = VoiceFilter.ANY,
+    val grab: GrabDialogState? = null,     // открыт диалог «Скачать?»
+    val grabbing: String? = null,          // идёт передача раздачи: имя сервиса (Radarr/Sonarr)
+    val message: UserMessage? = null,
 ) {
     // Раздачи под текущие фильтры (фильтруем на телефоне — повторный поиск не нужен)
     val visibleReleases: List<Release>
         get() = (releases as? UiState.Success)?.data.orEmpty().filter { it.matches(quality, voice) }
 }
+
+// Диалог скачивания. profiles == null — тайтл уже в Radarr/Sonarr, профиль не нужен.
+data class GrabDialogState(
+    val release: Release,
+    val service: String,
+    val checking: Boolean = true,
+    val profiles: List<QualityProfile>? = null,
+    val selectedProfile: Int? = null,
+)
 
 private fun Release.matches(quality: QualityFilter, voice: VoiceFilter): Boolean {
     val qualityOk = when (quality) {
@@ -104,6 +119,57 @@ class SourcesViewModel(
     fun onQualityChange(q: QualityFilter) = _state.update { it.copy(quality = q) }
 
     fun onVoiceChange(v: VoiceFilter) = _state.update { it.copy(voice = v) }
+
+    // Тап по раздаче: узнаём, есть ли тайтл в Radarr/Sonarr; если нет — нужен профиль качества
+    fun onReleaseClick(release: Release) {
+        val info = currentInfo() ?: return
+        val service = if (info.type == TitleType.MOVIE) "Radarr" else "Sonarr"
+        _state.update { it.copy(grab = GrabDialogState(release, service)) }
+        viewModelScope.launch {
+            val dialog = try {
+                if (repository.isInArr(info)) {
+                    GrabDialogState(release, service, checking = false)
+                } else {
+                    val profiles = repository.getProfiles(info.type)
+                    // По умолчанию — профиль с русской озвучкой, если он есть
+                    val preferred = profiles.firstOrNull { "RU" in it.name } ?: profiles.firstOrNull()
+                    GrabDialogState(release, service, checking = false, profiles = profiles, selectedProfile = preferred?.id)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.update { it.copy(grab = null, message = UserMessage(e.toErrorMessage(R.string.msg_grab_failed))) }
+                return@launch
+            }
+            _state.update { if (it.grab?.release == release) it.copy(grab = dialog) else it }
+        }
+    }
+
+    fun onProfileSelect(id: Int) = _state.update { s -> s.copy(grab = s.grab?.copy(selectedProfile = id)) }
+
+    fun dismissGrab() = _state.update { it.copy(grab = null) }
+
+    // Долго (Radarr/Sonarr ищут раздачу сами) — экран не блокируем, показываем строку прогресса
+    fun confirmGrab() {
+        val info = currentInfo() ?: return
+        val dialog = _state.value.grab ?: return
+        _state.update { it.copy(grab = null, grabbing = dialog.service) }
+        viewModelScope.launch {
+            val message = try {
+                repository.grabRelease(info, dialog.release, dialog.selectedProfile)
+                UserMessage(R.string.msg_grabbed, info.name.ifBlank { title })
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: ReleaseNotFoundException) {
+                UserMessage(R.string.msg_release_not_found)
+            } catch (e: Exception) {
+                UserMessage(e.toErrorMessage(R.string.msg_grab_failed))
+            }
+            _state.update { it.copy(grabbing = null, message = message) }
+        }
+    }
+
+    fun onMessageShown() = _state.update { it.copy(message = null) }
 
     private fun loadReleases(info: TitleInfo) {
         viewModelScope.launch {
