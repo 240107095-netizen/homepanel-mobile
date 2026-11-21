@@ -136,4 +136,16 @@
     <string name="msg_grabbed">▶ %1$s — отправлено, прогресс в «Загрузках»</string>
     <string name="msg_release_not_found">✗ Сервис не увидел эту раздачу — выберите другую</string>
     <string name="msg_grab_failed">✗ Не скачалось</string>
+    <string name="online_loading_details">Узнаю озвучки и серии…</string>
+    <string name="online_goes_to">%1$s → MediaDL скачает прямо в библиотеку сервера.</string>
+    <string name="online_voice">Озвучка</string>
+    <string name="online_quality">Качество</string>
+    <string name="online_season">Сезон</string>
+    <string name="online_episodes">Серии</string>
+    <string name="online_missing">Которых нет: %1$s</string>
+    <string name="online_all">Все %1$d</string>
+    <string name="online_nothing_missing">Все серии уже есть на сервере</string>
+    <string name="online_default_voice">По умолчанию</string>
+    <string name="msg_online_queued">▶ %1$s — в очереди MediaDL</string>
+    <string name="msg_online_failed">✗ MediaDL не смог поставить в очередь</string>
 </resources>

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.homepanel.HomepanelApplication
 import com.example.homepanel.R
 import com.example.homepanel.data.MediaRepository
+import com.example.homepanel.data.model.OnlineDetails
 import com.example.homepanel.data.model.OnlineResult
 import com.example.homepanel.data.model.QualityProfile
 import com.example.homepanel.data.model.Release
@@ -43,6 +44,7 @@ data class SourcesUiState(
     val voice: VoiceFilter = VoiceFilter.ANY,
     val grab: GrabDialogState? = null,     // открыт диалог «Скачать?»
     val grabbing: String? = null,          // идёт передача раздачи: имя сервиса (Radarr/Sonarr)
+    val onlineDialog: OnlineDialogState? = null,
     val message: UserMessage? = null,
 ) {
     // Раздачи под текущие фильтры (фильтруем на телефоне — повторный поиск не нужен)
@@ -58,6 +60,23 @@ data class GrabDialogState(
     val profiles: List<QualityProfile>? = null,
     val selectedProfile: Int? = null,
 )
+
+// Диалог онлайн-скачивания: что выбрал пользователь
+data class OnlineDialogState(
+    val result: OnlineResult,
+    val details: UiState<OnlineDetails> = UiState.Loading,
+    val dub: String = "",
+    val quality: Int = 1080,
+    val onlyMissing: Boolean = true,   // по умолчанию — только серии, которых нет на сервере
+    val queueing: Boolean = false,
+) {
+    // Какие серии уйдут в очередь
+    val episodes: List<Int>
+        get() {
+            val d = (details as? UiState.Success)?.data ?: return emptyList()
+            return if (onlyMissing) d.missing else (1..d.totalEpisodes).toList()
+        }
+}
 
 private fun Release.matches(quality: QualityFilter, voice: VoiceFilter): Boolean {
     val qualityOk = when (quality) {
@@ -170,6 +189,69 @@ class SourcesViewModel(
     }
 
     fun onMessageShown() = _state.update { it.copy(message = null) }
+
+    // --- онлайн (MediaDL) ---
+
+    fun onOnlineClick(result: OnlineResult) {
+        _state.update { it.copy(onlineDialog = OnlineDialogState(result)) }
+        loadOnlineDetails(result, season = null)
+    }
+
+    // Сезон сменили — у сезона свои серии и «что уже есть»
+    fun onOnlineSeason(season: Int) {
+        val dialog = _state.value.onlineDialog ?: return
+        loadOnlineDetails(dialog.result, season)
+    }
+
+    fun onOnlineDub(dub: String) = updateOnline { it.copy(dub = dub) }
+
+    fun onOnlineQuality(quality: Int) = updateOnline { it.copy(quality = quality) }
+
+    fun onOnlineOnlyMissing(value: Boolean) = updateOnline { it.copy(onlyMissing = value) }
+
+    fun dismissOnline() = _state.update { it.copy(onlineDialog = null) }
+
+    fun confirmOnline() {
+        val dialog = _state.value.onlineDialog ?: return
+        val details = (dialog.details as? UiState.Success)?.data ?: return
+        updateOnline { it.copy(queueing = true) }
+        viewModelScope.launch {
+            val message = try {
+                repository.queueOnline(dialog.result, details, dialog.dub, dialog.quality, details.season, dialog.episodes)
+                UserMessage(R.string.msg_online_queued, details.title)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                UserMessage(e.toErrorMessage(R.string.msg_online_failed))
+            }
+            _state.update { it.copy(onlineDialog = null, message = message) }
+        }
+    }
+
+    private fun loadOnlineDetails(result: OnlineResult, season: Int?) {
+        updateOnline { it.copy(details = UiState.Loading) }
+        viewModelScope.launch {
+            val details = try {
+                UiState.Success(repository.getOnlineDetails(result, season))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                UiState.Error(e.toErrorMessage(R.string.msg_online_failed))
+            }
+            updateOnline { d ->
+                val data = (details as? UiState.Success)?.data
+                d.copy(
+                    details = details,
+                    // Выбор пользователя сохраняем, если он ещё доступен в новом сезоне
+                    dub = d.dub.takeIf { data != null && it in data.dubs } ?: data?.dubs?.firstOrNull().orEmpty(),
+                    quality = d.quality.takeIf { data != null && it in data.qualities } ?: data?.qualities?.firstOrNull() ?: 1080,
+                )
+            }
+        }
+    }
+
+    private fun updateOnline(block: (OnlineDialogState) -> OnlineDialogState) =
+        _state.update { s -> s.copy(onlineDialog = s.onlineDialog?.let(block)) }
 
     private fun loadReleases(info: TitleInfo) {
         viewModelScope.launch {

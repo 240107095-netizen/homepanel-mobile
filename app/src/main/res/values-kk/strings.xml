@@ -132,4 +132,16 @@
     <string name="msg_grabbed">▶ %1$s — жіберілді, барысы «Жүктеулер» бөлімінде</string>
     <string name="msg_release_not_found">✗ Қызмет бұл таратуды көрмеді — басқасын таңдаңыз</string>
     <string name="msg_grab_failed">✗ Жүктелмеді</string>
+    <string name="online_loading_details">Дауыстар мен серияларды алып жатырмын…</string>
+    <string name="online_goes_to">%1$s → MediaDL тікелей сервер кітапханасына жүктейді.</string>
+    <string name="online_voice">Дауыс</string>
+    <string name="online_quality">Сапа</string>
+    <string name="online_season">Маусым</string>
+    <string name="online_episodes">Сериялар</string>
+    <string name="online_missing">Жоқтары: %1$s</string>
+    <string name="online_all">Барлығы %1$d</string>
+    <string name="online_nothing_missing">Барлық сериялар серверде бар</string>
+    <string name="online_default_voice">Әдепкі</string>
+    <string name="msg_online_queued">▶ %1$s — MediaDL кезегінде</string>
+    <string name="msg_online_failed">✗ MediaDL кезекке қоя алмады</string>
 </resources>

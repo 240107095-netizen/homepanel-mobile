@@ -139,4 +139,16 @@
     <string name="msg_grabbed">▶ %1$s — sent, see Downloads</string>
     <string name="msg_release_not_found">✗ The service didn\'t see this release — pick another one</string>
     <string name="msg_grab_failed">✗ Could not download</string>
+    <string name="online_loading_details">Getting voices and episodes…</string>
+    <string name="online_goes_to">%1$s → MediaDL downloads it straight into the server library.</string>
+    <string name="online_voice">Voice</string>
+    <string name="online_quality">Quality</string>
+    <string name="online_season">Season</string>
+    <string name="online_episodes">Episodes</string>
+    <string name="online_missing">Missing: %1$s</string>
+    <string name="online_all">All %1$d</string>
+    <string name="online_nothing_missing">All episodes are already on the server</string>
+    <string name="online_default_voice">Default</string>
+    <string name="msg_online_queued">▶ %1$s — queued in MediaDL</string>
+    <string name="msg_online_failed">✗ MediaDL could not queue it</string>
 </resources>

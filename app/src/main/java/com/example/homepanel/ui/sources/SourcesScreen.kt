@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.homepanel.R
+import com.example.homepanel.data.model.OnlineDetails
 import com.example.homepanel.data.model.OnlineResult
 import com.example.homepanel.data.model.Release
 import com.example.homepanel.data.model.Voice
@@ -68,18 +69,31 @@ fun SourcesScreen(
     }
 
     Box(modifier.fillMaxSize()) {
-    SourcesContent(
-        state = state,
-        onBack = onBack,
-        onRetryInfo = viewModel::load,
-        onRetryReleases = { viewModel.retryReleases() },
-        onRetryOnline = { viewModel.retryOnline() },
-        onTabChange = viewModel::onTabChange,
-        onQualityChange = viewModel::onQualityChange,
-        onVoiceChange = viewModel::onVoiceChange,
-        onReleaseClick = viewModel::onReleaseClick,
-    )
+        SourcesContent(
+            state = state,
+            onBack = onBack,
+            onRetryInfo = viewModel::load,
+            onRetryReleases = { viewModel.retryReleases() },
+            onRetryOnline = { viewModel.retryOnline() },
+            onTabChange = viewModel::onTabChange,
+            onQualityChange = viewModel::onQualityChange,
+            onVoiceChange = viewModel::onVoiceChange,
+            onReleaseClick = viewModel::onReleaseClick,
+            onOnlineClick = viewModel::onOnlineClick,
+        )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
+    }
+
+    state.onlineDialog?.let { dialog ->
+        OnlineDialog(
+            dialog = dialog,
+            onDub = viewModel::onOnlineDub,
+            onQuality = viewModel::onOnlineQuality,
+            onSeason = viewModel::onOnlineSeason,
+            onOnlyMissing = viewModel::onOnlineOnlyMissing,
+            onConfirm = viewModel::confirmOnline,
+            onDismiss = viewModel::dismissOnline,
+        )
     }
 
     state.grab?.let { dialog ->
@@ -193,6 +207,124 @@ private fun GrabDialog(
         },
         dismissButton = { TuiButton(stringResource(R.string.cancel), onDismiss, color = MaterialTheme.tui.muted) },
     )
+}
+
+// Онлайн-скачивание: озвучка, качество, сезон и серии. По умолчанию — только недостающие серии.
+@Composable
+private fun OnlineDialog(
+    dialog: OnlineDialogState,
+    onDub: (String) -> Unit,
+    onQuality: (Int) -> Unit,
+    onSeason: (Int) -> Unit,
+    onOnlyMissing: (Boolean) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val details = (dialog.details as? UiState.Success)?.data
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RectangleShape,
+        containerColor = MaterialTheme.tui.boost,
+        title = {
+            Text(stringResource(R.string.grab_title, details?.title ?: dialog.result.title),
+                style = MaterialTheme.typography.titleMedium)
+        },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(stringResource(R.string.online_goes_to, dialog.result.site.label), style = MaterialTheme.typography.bodyMedium)
+                when (val d = dialog.details) {
+                    UiState.Loading -> {
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.online_loading_details), color = MaterialTheme.tui.muted)
+                    }
+                    is UiState.Error -> {
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(d.message), color = MaterialTheme.colorScheme.error)
+                    }
+                    is UiState.Success -> OnlineChoices(dialog, d.data, onDub, onQuality, onSeason, onOnlyMissing)
+                }
+            }
+        },
+        confirmButton = {
+            val ready = details != null && !dialog.queueing && (details.isFilm || dialog.episodes.isNotEmpty())
+            TuiButton(stringResource(R.string.action_download), onConfirm, enabled = ready)
+        },
+        dismissButton = { TuiButton(stringResource(R.string.cancel), onDismiss, color = MaterialTheme.tui.muted) },
+    )
+}
+
+@Composable
+private fun OnlineChoices(
+    dialog: OnlineDialogState,
+    d: OnlineDetails,
+    onDub: (String) -> Unit,
+    onQuality: (Int) -> Unit,
+    onSeason: (Int) -> Unit,
+    onOnlyMissing: (Boolean) -> Unit,
+) {
+    ChoiceTitle(stringResource(R.string.online_quality))
+    TuiTabs(
+        labels = d.qualities.map { "${it}p" },
+        selected = d.qualities.indexOf(dialog.quality).coerceAtLeast(0),
+        onSelect = { onQuality(d.qualities[it]) },
+    )
+    if (!d.isFilm) {
+        if (d.seasons.size > 1) {
+            ChoiceTitle(stringResource(R.string.online_season))
+            TuiTabs(
+                labels = d.seasons.map { it.toString() },
+                selected = d.seasons.indexOf(d.season).coerceAtLeast(0),
+                onSelect = { onSeason(d.seasons[it]) },
+            )
+        }
+        ChoiceTitle(stringResource(R.string.online_episodes))
+        if (d.missing.isEmpty()) {
+            Text(stringResource(R.string.online_nothing_missing), color = MaterialTheme.tui.success)
+        }
+        TuiTabs(
+            labels = listOf(
+                stringResource(R.string.online_missing, episodesLabel(d.missing)),
+                stringResource(R.string.online_all, d.totalEpisodes),
+            ),
+            selected = if (dialog.onlyMissing) 0 else 1,
+            onSelect = { onOnlyMissing(it == 0) },
+        )
+    }
+    ChoiceTitle(stringResource(R.string.online_voice))
+    d.dubs.forEach { dub ->
+        val selected = dub == dialog.dub
+        Text(
+            (if (selected) "◉ " else "○ ") + dub.ifBlank { stringResource(R.string.online_default_voice) },
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onDub(dub) }
+                .padding(vertical = 6.dp),
+        )
+    }
+}
+
+@Composable
+private fun ChoiceTitle(text: String) {
+    Text(text, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
+}
+
+// [1,2,3,5] -> «1–3, 5»
+private fun episodesLabel(numbers: List<Int>): String {
+    if (numbers.isEmpty()) return "—"
+    val parts = mutableListOf<String>()
+    var start = numbers.first()
+    var prev = start
+    for (n in numbers.drop(1) + Int.MIN_VALUE) {
+        if (n == prev + 1) {
+            prev = n
+            continue
+        }
+        parts += if (start == prev) "$start" else "$start–$prev"
+        start = n
+        prev = n
+    }
+    return parts.joinToString(", ")
 }
 
 // «Trackers · 42» — сколько нашлось, «…» — ещё ищет
