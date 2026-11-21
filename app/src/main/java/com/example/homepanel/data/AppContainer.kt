@@ -6,6 +6,8 @@ import com.example.homepanel.data.network.JellyfinApi
 import com.example.homepanel.data.network.MemoryCookieJar
 import com.example.homepanel.data.network.QbitApi
 import com.example.homepanel.data.network.QbitClient
+import com.example.homepanel.data.network.RadarrApi
+import com.example.homepanel.data.network.SeerrApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -38,6 +40,8 @@ class DefaultAppContainer : AppContainer {
                     "MediaBrowser Token=\"${BuildConfig.JELLYFIN_KEY}\"",
                 ),
             )
+            .addInterceptor(ApiKeyInterceptor(BuildConfig.SEERR_URL, "X-Api-Key", BuildConfig.SEERR_KEY))
+            .addInterceptor(ApiKeyInterceptor(BuildConfig.RADARR_URL, "X-Api-Key", BuildConfig.RADARR_KEY))
             .cookieJar(MemoryCookieJar())  // сессия qBittorrent
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
@@ -52,9 +56,8 @@ class DefaultAppContainer : AppContainer {
         .build()
 
     override val repository: MediaRepository by lazy {
-        val demo = FakeMediaRepository()
         if (!hasServer) {
-            demo
+            FakeMediaRepository()
         } else {
             NetworkMediaRepository(
                 jellyfin = retrofit(BuildConfig.JELLYFIN_URL).create(JellyfinApi::class.java),
@@ -64,7 +67,8 @@ class DefaultAppContainer : AppContainer {
                     BuildConfig.QBIT_USER,
                     BuildConfig.QBIT_PASSWORD,
                 ),
-                fallback = demo,
+                seerr = retrofit(BuildConfig.SEERR_URL).create(SeerrApi::class.java),
+                radarr = retrofit(BuildConfig.RADARR_URL).create(RadarrApi::class.java),
             )
         }
     }

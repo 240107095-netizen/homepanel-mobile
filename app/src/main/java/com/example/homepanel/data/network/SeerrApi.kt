@@ -1,0 +1,27 @@
+package com.example.homepanel.data.network
+
+import com.example.homepanel.data.network.dto.SeerrRequestBody
+import com.example.homepanel.data.network.dto.SeerrSearchPage
+import com.example.homepanel.data.network.dto.SeerrStatus
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
+
+// Jellyseerr: поиск по TMDB и заявки на скачивание (дальше их выполняют Radarr/Sonarr).
+// Ключ — заголовок X-Api-Key (ApiKeyInterceptor).
+interface SeerrApi {
+
+    // Jellyseerr строго проверяет кодирование query, поэтому кодируем сами (encoded = true)
+    @GET("api/v1/search")
+    suspend fun search(
+        @Query("query", encoded = true) query: String,
+        @Query("page") page: Int = 1,
+    ): SeerrSearchPage
+
+    @POST("api/v1/request")
+    suspend fun request(@Body body: SeerrRequestBody)
+
+    @GET("api/v1/status")
+    suspend fun status(): SeerrStatus
+}
