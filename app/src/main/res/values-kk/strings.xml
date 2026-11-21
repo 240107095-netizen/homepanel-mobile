@@ -1,0 +1,98 @@
+<resources>
+    <!-- жалпы -->
+    <string name="loading">Жүктелуде…</string>
+    <string name="retry">Қайталау</string>
+    <string name="back">Артқа</string>
+    <string name="stale">байланыс жоқ</string>
+    <string name="error_no_connection">Сервермен байланыс жоқ. Ол қосулы ма және сіз үй Wi-Fi желісіндесіз бе?</string>
+    <string name="error_auth">Сервер API кілтін қабылдамады. local.properties файлын тексеріңіз</string>
+    <string name="error_server">Сервер қате қайтарды, кейінірек қайталаңыз</string>
+    <string name="error_bad_response">Сервер түсініксіз жауап жіберді</string>
+
+    <!-- қойындылар -->
+    <string name="tab_library">Кітапхана</string>
+    <string name="tab_downloads">Жүктеулер</string>
+    <string name="tab_search">Іздеу</string>
+    <string name="tab_server">Сервер</string>
+
+    <!-- тайтлдар -->
+    <string name="type_movie">фильм</string>
+    <string name="type_series">сериал</string>
+    <string name="badge_watched">көрілді</string>
+    <string name="badge_new">жаңа</string>
+
+    <plurals name="episodes">
+        <item quantity="one">%d серия</item>
+        <item quantity="other">%d серия</item>
+    </plurals>
+
+    <!-- тайтл экраны -->
+    <string name="title_seasons">Маусымдар</string>
+    <string name="title_no_overview">Сипаттама жоқ</string>
+    <string name="title_more">тағы…</string>
+    <string name="title_less">жасыру</string>
+    <string name="season_watched">көрілді</string>
+    <string name="season_progress">%2$d ішінен %1$d</string>
+    <string name="season_number">%1$d-маусым</string>
+    <string name="episode_minutes">%1$d мин</string>
+    <string name="season_empty">Бұл маусымда әзірге серия жоқ</string>
+    <string name="error_load_season">Серияларды жүктеу мүмкін болмады</string>
+    <string name="error_load_title">Тайтлды жүктеу мүмкін болмады</string>
+
+    <!-- кітапхана -->
+    <string name="library_title">Кітапхана</string>
+    <plurals name="library_count">
+        <item quantity="one">%d тайтл</item>
+        <item quantity="other">%d тайтл</item>
+    </plurals>
+    <string name="library_empty">Кітапхана бос</string>
+    <string name="library_empty_hint">Серверге фильм қосыңыз, олар осында пайда болады</string>
+    <string name="library_search_hint">/ кітапханадан іздеу…</string>
+    <string name="library_not_found">«%1$s» бойынша ештеңе табылмады</string>
+    <string name="filter_all">Барлығы</string>
+    <string name="filter_movies">Фильмдер</string>
+    <string name="filter_series">Сериалдар</string>
+    <string name="error_load_library">Кітапхананы жүктеу мүмкін болмады</string>
+
+    <!-- жүктеулер -->
+    <string name="downloads_title">Жүктеулер</string>
+    <string name="downloads_empty">Жүктеулер жоқ</string>
+    <string name="downloads_empty_hint">«Іздеу» қойындысынан жаңа тайтл табыңыз</string>
+    <string name="torrent_downloading">жүктелуде</string>
+    <string name="torrent_paused">кідірту</string>
+    <string name="torrent_done">дайын</string>
+    <string name="torrent_error">қате</string>
+    <string name="torrent_eta">%1$s қалды</string>
+    <string name="action_pause">Кідірту</string>
+    <string name="action_resume">Жалғастыру</string>
+    <string name="msg_paused">⏸︎ %1$s — кідіртілді</string>
+    <string name="msg_resumed">▶ %1$s — жалғастырылды</string>
+    <string name="msg_action_failed">✗ Сервер бас тартты, ештеңе өзгерген жоқ</string>
+    <string name="error_load_downloads">Жүктеулер тізімін жүктеу мүмкін болмады</string>
+
+    <!-- іздеу -->
+    <string name="search_title">Жаңасын табу</string>
+    <string name="search_hint">/ фильм не сериал атауы…</string>
+    <string name="search_idle">TMDB-дан іздеу үшін атауын жазыңыз</string>
+    <string name="search_idle_hint">Табылғанын сұрауға болады — сервер өзі жүктейді</string>
+    <string name="search_nothing">«%1$s» бойынша ештеңе табылмады</string>
+    <string name="status_available">кітапханада</string>
+    <string name="status_requested">сұралды</string>
+    <string name="action_request">Сұрау</string>
+    <string name="request_confirm_title">«%1$s» сұрау керек пе?</string>
+    <string name="request_confirm_text">Сервер тарату іздеп, оны кітапханаға жүктейді. Барысын «Жүктеулер» қойындысынан көруге болады.</string>
+    <string name="cancel">Болдырмау</string>
+    <string name="msg_requested">✓ %1$s — сұралды</string>
+    <string name="error_search">Іздеу қолжетімсіз</string>
+
+    <!-- сервер -->
+    <string name="server_title">Сервер</string>
+    <string name="server_name">Хост</string>
+    <string name="server_disk">Диск</string>
+    <string name="server_disk_usage">%2$s ішінен %1$s · бос %3$s</string>
+    <string name="server_services">Қызметтер</string>
+    <string name="service_online">жұмыс істеп тұр</string>
+    <string name="service_offline">жауап бермейді</string>
+    <string name="action_refresh">Жаңарту</string>
+    <string name="error_load_server">Сервер жауап бермейді</string>
+</resources>
