@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">homepanel</string>
+    <string name="app_name" translatable="false">homepanel</string>
 
     <!-- общие -->
     <string name="loading">Loading…</string>
@@ -29,7 +29,7 @@
     </plurals>
 
     <!-- экран тайтла -->
-    <string name="title_rating">★ %1$s</string>
+    <string name="title_rating" translatable="false">★ %1$s</string>
     <string name="title_seasons">Seasons</string>
     <string name="title_no_overview">No description</string>
     <string name="title_more">more…</string>
@@ -44,7 +44,10 @@
 
     <!-- библиотека -->
     <string name="library_title">Library</string>
-    <string name="library_count">%1$d titles</string>
+    <plurals name="library_count">
+        <item quantity="one">%d title</item>
+        <item quantity="other">%d titles</item>
+    </plurals>
     <string name="library_empty">Library is empty</string>
     <string name="library_empty_hint">Add movies on the server and they will appear here</string>
     <string name="library_search_hint">/ search library…</string>

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,7 @@ fun LibraryContent(
         TopStatusBar(title = stringResource(R.string.library_title)) {
             if (state.total > 0) {
                 Text(
-                    stringResource(R.string.library_count, state.total),
+                    pluralStringResource(R.plurals.library_count, state.total, state.total),
                     color = MaterialTheme.tui.muted,
                     style = MaterialTheme.typography.labelMedium,
                 )
