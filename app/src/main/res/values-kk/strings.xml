@@ -95,6 +95,8 @@
     <string name="service_offline">жауап бермейді</string>
     <string name="action_refresh">Жаңарту</string>
     <string name="server_language">Тіл</string>
+    <string name="action_rescan">Кітапхананы қайта сканерлеу</string>
+    <string name="msg_rescan_started">✓ Сканерлеу басталды — жаңа файлдар бір минутта пайда болады</string>
     <string name="lang_system">Жүйелік</string>
     <string name="error_load_server">Сервер жауап бермейді</string>
 </resources>

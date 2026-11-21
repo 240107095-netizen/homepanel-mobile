@@ -99,6 +99,8 @@
     <string name="service_offline">не отвечает</string>
     <string name="action_refresh">Обновить</string>
     <string name="server_language">Язык</string>
+    <string name="action_rescan">Пересканировать библиотеку</string>
+    <string name="msg_rescan_started">✓ Сканирование запущено — новые файлы появятся через минуту</string>
     <string name="lang_system">Системный</string>
     <string name="error_load_server">Сервер не отвечает</string>
 </resources>

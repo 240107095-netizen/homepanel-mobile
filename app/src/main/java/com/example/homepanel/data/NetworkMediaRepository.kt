@@ -100,6 +100,8 @@ class NetworkMediaRepository(
         )
     }
 
+    override suspend fun refreshLibrary() = jellyfin.refreshLibrary()
+
     private fun service(name: String, version: String?) = ServiceStatus(name, version != null, version)
 
     // null — сервис не ответил

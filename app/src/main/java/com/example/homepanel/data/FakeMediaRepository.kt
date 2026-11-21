@@ -113,6 +113,10 @@ class FakeMediaRepository(private val latencyMs: Long = 400) : MediaRepository {
         )
     }
 
+    override suspend fun refreshLibrary() {
+        delay(latencyMs)
+    }
+
     private fun title(
         id: String, type: TitleType, name: String, original: String, year: Int, rating: Double,
         played: Boolean, percent: Int = if (played) 100 else 0, episodes: Int = 0, unplayed: Int = 0,

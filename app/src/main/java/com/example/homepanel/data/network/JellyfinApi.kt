@@ -4,6 +4,7 @@ import com.example.homepanel.data.network.dto.JfItems
 import com.example.homepanel.data.network.dto.JfSystemInfo
 import com.example.homepanel.data.network.dto.JfUser
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -44,4 +45,8 @@ interface JellyfinApi {
 
     @GET("System/Info")
     suspend fun systemInfo(): JfSystemInfo
+
+    // Пересканировать папки: новые файлы появятся в библиотеке через минуту-другую
+    @POST("Library/Refresh")
+    suspend fun refreshLibrary()
 }

@@ -24,4 +24,5 @@ interface MediaRepository {
     suspend fun request(result: SearchResult)
 
     suspend fun getServerStatus(): ServerStatus
+    suspend fun refreshLibrary()
 }

@@ -98,6 +98,8 @@
     <string name="service_offline">offline</string>
     <string name="action_refresh">Refresh</string>
     <string name="server_language">Language</string>
+    <string name="action_rescan">Rescan library</string>
+    <string name="msg_rescan_started">✓ Rescan started — new files will appear in a minute</string>
     <string name="lang_system">System</string>
     <!-- названия языков пишем на самих языках, не переводим -->
     <string name="lang_en" translatable="false">English</string>

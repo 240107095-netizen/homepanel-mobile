@@ -1,5 +1,6 @@
 package com.example.homepanel.ui.server
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +12,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,37 +48,63 @@ fun ServerScreen(
     viewModel: ServerViewModel = viewModel(factory = ServerViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ServerContent(state, onRefresh = viewModel::load, modifier = modifier)
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    LaunchedEffect(state.message) {
+        state.message?.let { msg ->
+            snackbar.showSnackbar(context.getString(msg.text, msg.arg))
+            viewModel.onMessageShown()
+        }
+    }
+
+    Box(modifier.fillMaxSize()) {
+        ServerContent(state, onRefresh = viewModel::load, onRescan = viewModel::rescanLibrary)
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
+    }
 }
 
 @Composable
-fun ServerContent(state: UiState<ServerStatus>, onRefresh: () -> Unit, modifier: Modifier = Modifier) {
+fun ServerContent(
+    state: ServerUiState,
+    onRefresh: () -> Unit,
+    onRescan: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.server_title)) {
-            if (state is UiState.Success) {
-                val ok = state.data.services.all { it.online }
-                StatusBadge("●", state.data.serverName, if (ok) StatusKind.OK else StatusKind.WAIT)
+            val status = state.status
+            if (status is UiState.Success) {
+                val ok = status.data.services.all { it.online }
+                StatusBadge("●", status.data.serverName, if (ok) StatusKind.OK else StatusKind.WAIT)
             }
         }
-        when (state) {
-            UiState.Loading -> LoadingState()
-            is UiState.Error -> ErrorState(stringResource(state.message), onRefresh)
-            is UiState.Success -> Column(
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp),
-            ) {
-                DiskSection(state.data)
-                Spacer(Modifier.height(20.dp))
-                SectionTitle(stringResource(R.string.server_services))
-                state.data.services.forEach { ServiceRow(it) }
-                Spacer(Modifier.height(12.dp))
-                TuiButton(stringResource(R.string.action_refresh), onClick = onRefresh)
-                Spacer(Modifier.height(20.dp))
-                SectionTitle(stringResource(R.string.server_language))
-                LanguageSwitcher()
+        Box(Modifier.weight(1f)) {
+            when (val status = state.status) {
+                UiState.Loading -> LoadingState()
+                is UiState.Error -> ErrorState(stringResource(status.message), onRefresh)
+                is UiState.Success -> Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 12.dp),
+                ) {
+                    DiskSection(status.data)
+                    Spacer(Modifier.height(20.dp))
+                    SectionTitle(stringResource(R.string.server_services))
+                    status.data.services.forEach { ServiceRow(it) }
+                    Spacer(Modifier.height(12.dp))
+                    Row {
+                        TuiButton(stringResource(R.string.action_refresh), onClick = onRefresh)
+                        TuiButton(stringResource(R.string.action_rescan), onClick = onRescan, enabled = !state.rescanning)
+                    }
+                }
             }
+        }
+        // Язык доступен всегда — даже когда сервер не отвечает
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            SectionTitle(stringResource(R.string.server_language))
+            LanguageSwitcher()
         }
     }
 }
