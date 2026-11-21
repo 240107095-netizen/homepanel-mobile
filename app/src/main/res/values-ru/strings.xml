@@ -121,4 +121,10 @@
     <string name="voice_subs">субтитры</string>
     <string name="release_season">сезон %1$d</string>
     <string name="search_sources_hint">тап — выбрать источник ▸</string>
+    <string name="filter_quality_any">Любое</string>
+    <string name="filter_quality_low">≤720p</string>
+    <string name="filter_voice_any">Любая</string>
+    <string name="filter_voice_ru">Русская</string>
+    <string name="filter_voice_orig">Оригинал</string>
+    <string name="sources_filtered_out">Под фильтры ничего не подходит</string>
 </resources>

@@ -26,13 +26,38 @@ import kotlinx.coroutines.launch
 
 enum class SourceTab { TRACKERS, ONLINE }
 
+// Фильтры раздач: «Любое · 2160p · 1080p · ≤720p» и «Любая · Русская · Оригинал»
+enum class QualityFilter { ANY, UHD, FHD, LOW }
+enum class VoiceFilter { ANY, RUSSIAN, ORIGINAL }
+
 data class SourcesUiState(
     val heading: String = "",
     val info: UiState<TitleInfo> = UiState.Loading,
     val tab: SourceTab = SourceTab.TRACKERS,
     val releases: UiState<List<Release>> = UiState.Loading,
     val online: UiState<List<OnlineResult>> = UiState.Loading,
-)
+    val quality: QualityFilter = QualityFilter.ANY,
+    val voice: VoiceFilter = VoiceFilter.ANY,
+) {
+    // Раздачи под текущие фильтры (фильтруем на телефоне — повторный поиск не нужен)
+    val visibleReleases: List<Release>
+        get() = (releases as? UiState.Success)?.data.orEmpty().filter { it.matches(quality, voice) }
+}
+
+private fun Release.matches(quality: QualityFilter, voice: VoiceFilter): Boolean {
+    val qualityOk = when (quality) {
+        QualityFilter.ANY -> true
+        QualityFilter.UHD -> resolution == "2160p"
+        QualityFilter.FHD -> resolution == "1080p"
+        QualityFilter.LOW -> resolution == "720p" || resolution == "SD"
+    }
+    val voiceOk = when (voice) {
+        VoiceFilter.ANY -> true
+        VoiceFilter.RUSSIAN -> hasRussian
+        VoiceFilter.ORIGINAL -> hasOriginal
+    }
+    return qualityOk && voiceOk
+}
 
 class SourcesViewModel(
     savedStateHandle: SavedStateHandle,
@@ -75,6 +100,10 @@ class SourcesViewModel(
     fun retryOnline() = currentInfo()?.let { loadOnline(it) }
 
     fun onTabChange(tab: SourceTab) = _state.update { it.copy(tab = tab) }
+
+    fun onQualityChange(q: QualityFilter) = _state.update { it.copy(quality = q) }
+
+    fun onVoiceChange(v: VoiceFilter) = _state.update { it.copy(voice = v) }
 
     private fun loadReleases(info: TitleInfo) {
         viewModelScope.launch {

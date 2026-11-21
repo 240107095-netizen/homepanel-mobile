@@ -124,4 +124,10 @@
     <string name="voice_subs">subtitles</string>
     <string name="release_season">S%1$d</string>
     <string name="search_sources_hint">tap to choose a source ▸</string>
+    <string name="filter_quality_any">Any</string>
+    <string name="filter_quality_low">≤720p</string>
+    <string name="filter_voice_any">Any voice</string>
+    <string name="filter_voice_ru">Russian</string>
+    <string name="filter_voice_orig">Original</string>
+    <string name="sources_filtered_out">No releases match the filters</string>
 </resources>

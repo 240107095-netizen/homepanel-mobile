@@ -51,6 +51,8 @@ fun SourcesScreen(
         onRetryReleases = { viewModel.retryReleases() },
         onRetryOnline = { viewModel.retryOnline() },
         onTabChange = viewModel::onTabChange,
+        onQualityChange = viewModel::onQualityChange,
+        onVoiceChange = viewModel::onVoiceChange,
         modifier = modifier,
     )
 }
@@ -64,6 +66,8 @@ fun SourcesContent(
     onRetryOnline: () -> Unit,
     onTabChange: (SourceTab) -> Unit,
     modifier: Modifier = Modifier,
+    onQualityChange: (QualityFilter) -> Unit = {},
+    onVoiceChange: (VoiceFilter) -> Unit = {},
     onReleaseClick: (Release) -> Unit = {},
     onOnlineClick: (OnlineResult) -> Unit = {},
 ) {
@@ -82,7 +86,10 @@ fun SourcesContent(
                     onSelect = { onTabChange(SourceTab.entries[it]) },
                 )
                 when (state.tab) {
-                    SourceTab.TRACKERS -> ReleasesTab(state.releases, onRetryReleases, onReleaseClick)
+                    SourceTab.TRACKERS -> {
+                        ReleaseFilters(state, onQualityChange, onVoiceChange)
+                        ReleasesTab(state, onRetryReleases, onReleaseClick)
+                    }
                     SourceTab.ONLINE -> OnlineTab(state.online, onRetryOnline, onOnlineClick)
                 }
             }
@@ -97,16 +104,40 @@ private fun tabLabel(name: String, state: UiState<List<*>>) = when (state) {
     is UiState.Success -> "$name · ${state.data.size}"
 }
 
+// Две строки переключателей над списком раздач
 @Composable
-private fun ReleasesTab(state: UiState<List<Release>>, onRetry: () -> Unit, onClick: (Release) -> Unit) {
-    when (state) {
+private fun ReleaseFilters(
+    state: SourcesUiState,
+    onQualityChange: (QualityFilter) -> Unit,
+    onVoiceChange: (VoiceFilter) -> Unit,
+) {
+    TuiTabs(
+        labels = listOf(stringResource(R.string.filter_quality_any), "2160p", "1080p",
+            stringResource(R.string.filter_quality_low)),
+        selected = state.quality.ordinal,
+        onSelect = { onQualityChange(QualityFilter.entries[it]) },
+    )
+    TuiTabs(
+        labels = listOf(stringResource(R.string.filter_voice_any), stringResource(R.string.filter_voice_ru),
+            stringResource(R.string.filter_voice_orig)),
+        selected = state.voice.ordinal,
+        onSelect = { onVoiceChange(VoiceFilter.entries[it]) },
+    )
+}
+
+@Composable
+private fun ReleasesTab(state: SourcesUiState, onRetry: () -> Unit, onClick: (Release) -> Unit) {
+    when (val releases = state.releases) {
         UiState.Loading -> LoadingState(text = stringResource(R.string.sources_searching_trackers))
-        is UiState.Error -> ErrorState(stringResource(state.message), onRetry)
-        is UiState.Success -> if (state.data.isEmpty()) {
-            EmptyState(stringResource(R.string.sources_no_releases), hint = stringResource(R.string.sources_no_releases_hint))
-        } else {
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(state.data, key = { it.guid }) { ReleaseRow(it, onClick = { onClick(it) }) }
+        is UiState.Error -> ErrorState(stringResource(releases.message), onRetry)
+        is UiState.Success -> when {
+            releases.data.isEmpty() -> EmptyState(
+                stringResource(R.string.sources_no_releases),
+                hint = stringResource(R.string.sources_no_releases_hint),
+            )
+            state.visibleReleases.isEmpty() -> EmptyState(stringResource(R.string.sources_filtered_out))
+            else -> LazyColumn(Modifier.fillMaxSize()) {
+                items(state.visibleReleases, key = { it.guid }) { ReleaseRow(it, onClick = { onClick(it) }) }
             }
         }
     }

@@ -117,4 +117,10 @@
     <string name="voice_subs">субтитрлер</string>
     <string name="release_season">%1$d-маусым</string>
     <string name="search_sources_hint">басыңыз — көзді таңдау ▸</string>
+    <string name="filter_quality_any">Кез келген</string>
+    <string name="filter_quality_low">≤720p</string>
+    <string name="filter_voice_any">Кез келген</string>
+    <string name="filter_voice_ru">Орысша</string>
+    <string name="filter_voice_orig">Түпнұсқа</string>
+    <string name="sources_filtered_out">Сүзгілерге ештеңе сәйкес келмейді</string>
 </resources>
