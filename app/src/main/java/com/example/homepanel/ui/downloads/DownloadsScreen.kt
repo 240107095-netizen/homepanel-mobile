@@ -76,7 +76,9 @@ fun DownloadsContent(
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.downloads_title)) {
-            if (state.totalSpeed > 0) {
+            if (state.stale) {
+                StatusBadge("⚠", stringResource(R.string.stale), StatusKind.WAIT)
+            } else if (state.totalSpeed > 0) {
                 Text("↓ " + formatSpeed(state.totalSpeed), color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelMedium)
             }

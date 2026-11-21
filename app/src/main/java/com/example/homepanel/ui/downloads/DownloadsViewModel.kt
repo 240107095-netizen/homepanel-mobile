@@ -13,15 +13,19 @@ import com.example.homepanel.data.model.TorrentState
 import com.example.homepanel.ui.UiState
 import com.example.homepanel.ui.UserMessage
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class DownloadsUiState(
     val torrents: UiState<List<Torrent>> = UiState.Loading,
     val message: UserMessage? = null,
+    val stale: Boolean = false,  // связь пропала: показываем последние известные данные
 ) {
     // Общая скорость для шапки
     val totalSpeed: Long
@@ -31,23 +35,37 @@ data class DownloadsUiState(
 class DownloadsViewModel(private val repository: MediaRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(DownloadsUiState())
-    val state: StateFlow<DownloadsUiState> = _state.asStateFlow()
 
-    init {
-        load()
+    // Пока экран подписан на state, раз в 2 секунды спрашиваем сервер.
+    // Экран ушёл (или приложение свернули) — через 5 секунд опрос останавливается сам.
+    val state: StateFlow<DownloadsUiState> = channelFlow {
+        launch {
+            while (true) {
+                refresh()
+                delay(POLL_INTERVAL_MS)
+            }
+        }
+        _state.collect { send(it) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DownloadsUiState())
+
+    // Кнопка «Повторить» на экране ошибки
+    fun load() {
+        _state.update { it.copy(torrents = UiState.Loading) }
+        viewModelScope.launch { refresh() }
     }
 
-    fun load() {
-        viewModelScope.launch {
-            _state.update { it.copy(torrents = UiState.Loading) }
-            val result = try {
-                UiState.Success(repository.getTorrents())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                UiState.Error(R.string.error_load_downloads)
+    private suspend fun refresh() {
+        try {
+            val list = repository.getTorrents()
+            _state.update { it.copy(torrents = UiState.Success(list), stale = false) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Данные уже были — не стираем их, а помечаем устаревшими
+            _state.update {
+                if (it.torrents is UiState.Success) it.copy(stale = true)
+                else it.copy(torrents = UiState.Error(R.string.error_load_downloads))
             }
-            _state.update { it.copy(torrents = result) }
         }
     }
 
@@ -86,6 +104,8 @@ class DownloadsViewModel(private val repository: MediaRepository) : ViewModel() 
     }
 
     companion object {
+        private const val POLL_INTERVAL_MS = 2_000L
+
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as HomepanelApplication
