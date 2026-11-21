@@ -20,6 +20,21 @@
     <string name="badge_watched">watched</string>
     <string name="badge_new">new</string>
 
+    <plurals name="episodes">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
+    </plurals>
+
+    <!-- экран тайтла -->
+    <string name="title_rating">★ %1$s</string>
+    <string name="title_seasons">Seasons</string>
+    <string name="title_no_overview">No description</string>
+    <string name="title_more">more…</string>
+    <string name="title_less">less</string>
+    <string name="season_watched">watched</string>
+    <string name="season_progress">%1$d of %2$d</string>
+    <string name="error_load_title">Could not load this title</string>
+
     <!-- библиотека -->
     <string name="library_title">Library</string>
     <string name="library_count">%1$d titles</string>

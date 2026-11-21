@@ -18,15 +18,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.homepanel.R
 import com.example.homepanel.ui.components.EmptyState
 import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.library.LibraryScreen
 import com.example.homepanel.ui.theme.tui
+import com.example.homepanel.ui.title.TitleScreen
 
 // Корень интерфейса: Scaffold с нижней панелью и NavHost со всеми экранами
 @Composable
@@ -52,7 +55,14 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
             modifier = Modifier.padding(padding),
         ) {
             composable(Routes.LIBRARY) {
-                LibraryScreen(onTitleClick = { /* экран тайтла — следующий шаг */ })
+                LibraryScreen(onTitleClick = { id -> navController.navigate(Routes.title(id)) })
+            }
+            composable(
+                route = Routes.TITLE,
+                arguments = listOf(navArgument(Routes.ARG_ITEM_ID) { type = NavType.StringType }),
+            ) {
+                // itemId сам попадёт во ViewModel через SavedStateHandle
+                TitleScreen(onBack = { navController.navigateUp() })
             }
             composable(Routes.DOWNLOADS) { PlaceholderScreen(stringResource(R.string.downloads_title)) }
             composable(Routes.SEARCH) { PlaceholderScreen(stringResource(R.string.search_title)) }

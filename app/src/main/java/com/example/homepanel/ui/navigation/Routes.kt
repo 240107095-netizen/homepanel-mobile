@@ -9,6 +9,11 @@ object Routes {
     const val DOWNLOADS = "downloads"
     const val SEARCH = "search"
     const val SERVER = "server"
+
+    // Экран тайтла: id из Jellyfin передаётся аргументом маршрута
+    const val ARG_ITEM_ID = "itemId"
+    const val TITLE = "title/{$ARG_ITEM_ID}"
+    fun title(itemId: String) = "title/$itemId"
 }
 
 // Вкладки нижней панели: маршрут, подпись и текстовый значок
