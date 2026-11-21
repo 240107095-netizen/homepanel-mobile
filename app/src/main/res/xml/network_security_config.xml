@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Сервисы домашнего сервера работают по http без TLS.
+     Разрешаем незашифрованный трафик только к нему, всё остальное — только https. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">192.168.1.250</domain>
+    </domain-config>
+</network-security-config>
