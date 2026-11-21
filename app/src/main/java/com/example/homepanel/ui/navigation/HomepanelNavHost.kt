@@ -27,6 +27,7 @@ import androidx.navigation.navArgument
 import com.example.homepanel.R
 import com.example.homepanel.ui.components.EmptyState
 import com.example.homepanel.ui.components.TopStatusBar
+import com.example.homepanel.ui.downloads.DownloadsScreen
 import com.example.homepanel.ui.library.LibraryScreen
 import com.example.homepanel.ui.season.SeasonScreen
 import com.example.homepanel.ui.theme.tui
@@ -77,7 +78,7 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
             ) {
                 SeasonScreen(onBack = { navController.navigateUp() })
             }
-            composable(Routes.DOWNLOADS) { PlaceholderScreen(stringResource(R.string.downloads_title)) }
+            composable(Routes.DOWNLOADS) { DownloadsScreen() }
             composable(Routes.SEARCH) { PlaceholderScreen(stringResource(R.string.search_title)) }
             composable(Routes.SERVER) { PlaceholderScreen(stringResource(R.string.server_title)) }
         }

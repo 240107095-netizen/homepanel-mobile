@@ -53,6 +53,19 @@
 
     <!-- загрузки -->
     <string name="downloads_title">Downloads</string>
+    <string name="downloads_empty">No downloads</string>
+    <string name="downloads_empty_hint">Find a new title in the Search tab</string>
+    <string name="torrent_downloading">downloading</string>
+    <string name="torrent_paused">paused</string>
+    <string name="torrent_done">done</string>
+    <string name="torrent_error">error</string>
+    <string name="torrent_eta">left %1$s</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
+    <string name="msg_paused">⏸ %1$s — paused</string>
+    <string name="msg_resumed">▶ %1$s — resumed</string>
+    <string name="msg_action_failed">✗ Server refused, nothing changed</string>
+    <string name="error_load_downloads">Could not load downloads</string>
 
     <!-- поиск -->
     <string name="search_title">Find new</string>
