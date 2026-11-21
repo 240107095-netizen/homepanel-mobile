@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,6 +54,10 @@ fun SearchScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
+
+    // Текущий язык интерфейса (после переключения экран пересоздаётся с новым)
+    val language = LocalConfiguration.current.locales[0].language
+    LaunchedEffect(language) { viewModel.onLanguageChange(language) }
 
     LaunchedEffect(state.message) {
         state.message?.let { msg ->

@@ -19,9 +19,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -35,6 +35,9 @@ data class SearchUiState(
 class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(SearchUiState())
+
+    // Язык интерфейса сообщает экран; сменили язык — повторяем поиск на новом
+    private val language = MutableStateFlow("en")
     val state: StateFlow<SearchUiState> = _state.asStateFlow()
 
     init {
@@ -46,21 +49,25 @@ class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
     @OptIn(FlowPreview::class)
     private fun observeQuery() {
         viewModelScope.launch {
-            _state.map { it.query.trim() }
+            combine(_state, language) { s, lang -> s.query.trim() to lang }
                 .distinctUntilChanged()
                 .debounce(400)
-                .collectLatest { query -> search(query) }
+                .collectLatest { (query, lang) -> search(query, lang) }
         }
     }
 
-    private suspend fun search(query: String) {
+    fun onLanguageChange(tag: String) {
+        language.value = tag
+    }
+
+    private suspend fun search(query: String, lang: String = language.value) {
         if (query.isEmpty()) {
             _state.update { it.copy(results = null) }
             return
         }
         _state.update { it.copy(results = UiState.Loading) }
         val result = try {
-            UiState.Success(repository.search(query))
+            UiState.Success(repository.search(query, lang))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

@@ -58,10 +58,10 @@ class NetworkMediaRepository(
     override suspend fun pauseTorrent(hash: String) = qbit.pause(hash)
     override suspend fun resumeTorrent(hash: String) = qbit.resume(hash)
 
-    override suspend fun search(query: String): List<SearchResult> {
+    override suspend fun search(query: String, language: String): List<SearchResult> {
         // Пробел — %20, а не «+»: иначе Jellyseerr отвечает 400
         val encoded = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
-        return seerr.search(encoded).results.mapNotNull { it.toSearchResult() }
+        return seerr.search(encoded, language = language).results.mapNotNull { it.toSearchResult() }
     }
 
     override suspend fun request(result: SearchResult) {

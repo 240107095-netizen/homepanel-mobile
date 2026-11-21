@@ -17,6 +17,7 @@ interface SeerrApi {
     suspend fun search(
         @Query("query", encoded = true) query: String,
         @Query("page") page: Int = 1,
+        @Query("language") language: String = "en",
     ): SeerrSearchPage
 
     @POST("api/v1/request")

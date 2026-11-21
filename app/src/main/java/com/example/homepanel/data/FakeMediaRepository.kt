@@ -81,7 +81,7 @@ class FakeMediaRepository(private val latencyMs: Long = 400) : MediaRepository {
         if (i >= 0) torrents[i] = torrents[i].copy(state = state, downloadSpeed = 0)
     }
 
-    override suspend fun search(query: String): List<SearchResult> {
+    override suspend fun search(query: String, language: String): List<SearchResult> {
         delay(latencyMs)
         if (query.isBlank()) return emptyList()
         return listOf(

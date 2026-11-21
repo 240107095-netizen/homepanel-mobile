@@ -19,7 +19,8 @@ interface MediaRepository {
     suspend fun pauseTorrent(hash: String)
     suspend fun resumeTorrent(hash: String)
 
-    suspend fun search(query: String): List<SearchResult>
+    // language — язык интерфейса (en/ru/kk): названия и описания придут на нём
+    suspend fun search(query: String, language: String): List<SearchResult>
     suspend fun request(result: SearchResult)
 
     suspend fun getServerStatus(): ServerStatus
