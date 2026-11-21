@@ -30,6 +30,7 @@ import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.downloads.DownloadsScreen
 import com.example.homepanel.ui.library.LibraryScreen
 import com.example.homepanel.ui.season.SeasonScreen
+import com.example.homepanel.ui.server.ServerScreen
 import com.example.homepanel.ui.theme.tui
 import com.example.homepanel.ui.title.TitleScreen
 
@@ -80,7 +81,7 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
             }
             composable(Routes.DOWNLOADS) { DownloadsScreen() }
             composable(Routes.SEARCH) { PlaceholderScreen(stringResource(R.string.search_title)) }
-            composable(Routes.SERVER) { PlaceholderScreen(stringResource(R.string.server_title)) }
+            composable(Routes.SERVER) { ServerScreen() }
         }
     }
 }

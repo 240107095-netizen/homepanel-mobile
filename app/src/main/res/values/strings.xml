@@ -72,4 +72,12 @@
 
     <!-- сервер -->
     <string name="server_title">Server</string>
+    <string name="server_name">Host</string>
+    <string name="server_disk">Disk</string>
+    <string name="server_disk_usage">%1$s of %2$s · free %3$s</string>
+    <string name="server_services">Services</string>
+    <string name="service_online">online</string>
+    <string name="service_offline">offline</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="error_load_server">Server is not responding</string>
 </resources>
