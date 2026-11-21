@@ -30,6 +30,7 @@ import com.example.homepanel.ui.components.TuiSearchField
 import com.example.homepanel.ui.components.TuiTabs
 import com.example.homepanel.ui.theme.HomepanelTheme
 import com.example.homepanel.ui.theme.tui
+import com.example.homepanel.ui.PreviewData
 
 // Обёртка с ViewModel: подписывается на state и передаёт его в «чистый» экран
 @Composable
@@ -120,5 +121,16 @@ fun LibraryContent(
 private fun LibraryLoadingPreview() {
     HomepanelTheme {
         LibraryContent(LibraryUiState(), onQueryChange = {}, onFilterChange = {}, onRetry = {}, onTitleClick = {})
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun LibraryPreview() {
+    HomepanelTheme {
+        LibraryContent(
+            LibraryUiState(total = 3, titles = UiState.Success(PreviewData.titles)),
+            onQueryChange = {}, onFilterChange = {}, onRetry = {}, onTitleClick = {},
+        )
     }
 }

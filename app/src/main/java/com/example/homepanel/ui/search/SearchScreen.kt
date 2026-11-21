@@ -45,6 +45,9 @@ import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.components.TuiButton
 import com.example.homepanel.ui.components.TuiSearchField
 import com.example.homepanel.ui.theme.tui
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.homepanel.ui.theme.HomepanelTheme
+import com.example.homepanel.ui.PreviewData
 
 @Composable
 fun SearchScreen(
@@ -158,4 +161,15 @@ private fun RequestDialog(item: SearchResult, onConfirm: () -> Unit, onDismiss: 
         confirmButton = { TuiButton(stringResource(R.string.action_request), onConfirm) },
         dismissButton = { TuiButton(stringResource(R.string.cancel), onDismiss, color = MaterialTheme.tui.muted) },
     )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun SearchPreview() {
+    HomepanelTheme {
+        SearchContent(
+            SearchUiState(query = "dune", results = UiState.Success(PreviewData.searchResults)),
+            onQueryChange = {}, onRetry = {}, onRequest = {},
+        )
+    }
 }

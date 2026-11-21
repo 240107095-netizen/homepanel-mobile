@@ -3,7 +3,6 @@ package com.example.homepanel.data.network.dto
 import com.example.homepanel.data.model.MediaStatus
 import com.example.homepanel.data.model.SearchResult
 import com.example.homepanel.data.model.TitleType
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable

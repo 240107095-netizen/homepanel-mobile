@@ -41,6 +41,9 @@ import com.example.homepanel.ui.components.TuiProgress
 import com.example.homepanel.ui.components.color
 import com.example.homepanel.ui.formatBytes
 import com.example.homepanel.ui.theme.tui
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.homepanel.ui.theme.HomepanelTheme
+import com.example.homepanel.ui.PreviewData
 
 @Composable
 fun ServerScreen(
@@ -158,5 +161,13 @@ private fun ServiceRow(service: ServiceStatus) {
         } else {
             StatusBadge("✗", stringResource(R.string.service_offline), StatusKind.ERROR)
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun ServerPreview() {
+    HomepanelTheme {
+        ServerContent(ServerUiState(UiState.Success(PreviewData.server)), onRefresh = {}, onRescan = {})
     }
 }

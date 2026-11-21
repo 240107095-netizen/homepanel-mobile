@@ -41,6 +41,9 @@ import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.components.titleMeta
 import com.example.homepanel.ui.theme.tui
 import java.util.Locale
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.homepanel.ui.theme.HomepanelTheme
+import com.example.homepanel.ui.PreviewData
 
 @Composable
 fun TitleScreen(
@@ -168,5 +171,16 @@ private fun SeasonRow(season: Season, onClick: () -> Unit) {
             else ->
                 StatusBadge("○", stringResource(R.string.season_progress, 0, season.episodeCount), StatusKind.MUTED)
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun TitlePreview() {
+    HomepanelTheme {
+        TitleContent(
+            UiState.Success(TitleDetails(PreviewData.titles[0], PreviewData.seasons)),
+            onBack = {}, onRetry = {}, onSeasonClick = {},
+        )
     }
 }

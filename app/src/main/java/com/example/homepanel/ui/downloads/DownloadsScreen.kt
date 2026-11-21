@@ -45,6 +45,9 @@ import com.example.homepanel.ui.formatBytes
 import com.example.homepanel.ui.formatEta
 import com.example.homepanel.ui.formatSpeed
 import com.example.homepanel.ui.theme.tui
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.homepanel.ui.theme.HomepanelTheme
+import com.example.homepanel.ui.PreviewData
 
 @Composable
 fun DownloadsScreen(
@@ -163,5 +166,21 @@ private fun torrentDetails(t: Torrent): String = buildString {
         if (t.etaSeconds > 0) append(" · ").append(stringResource(R.string.torrent_eta, formatEta(t.etaSeconds)))
     } else {
         append(" · ").append(formatBytes(t.sizeBytes))
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun DownloadsPreview() {
+    HomepanelTheme {
+        DownloadsContent(DownloadsUiState(UiState.Success(PreviewData.torrents)), onToggle = {}, onRetry = {})
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun DownloadsErrorPreview() {
+    HomepanelTheme {
+        DownloadsContent(DownloadsUiState(UiState.Error(R.string.error_no_connection)), onToggle = {}, onRetry = {})
     }
 }
