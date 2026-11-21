@@ -27,6 +27,7 @@ data class DownloadsUiState(
     val torrents: UiState<List<Torrent>> = UiState.Loading,
     val message: UserMessage? = null,
     val stale: Boolean = false,  // связь пропала: показываем последние известные данные
+    val isRefreshing: Boolean = false,
 ) {
     // Общая скорость для шапки
     val totalSpeed: Long
@@ -53,6 +54,16 @@ class DownloadsViewModel(private val repository: MediaRepository) : ViewModel() 
     fun load() {
         _state.update { it.copy(torrents = UiState.Loading) }
         viewModelScope.launch { refresh() }
+    }
+
+    // Свайп вниз: не ждём следующего тика опроса
+    fun pullRefresh() {
+        if (_state.value.isRefreshing) return
+        viewModelScope.launch {
+            _state.update { it.copy(isRefreshing = true) }
+            refresh()
+            _state.update { it.copy(isRefreshing = false) }
+        }
     }
 
     private suspend fun refresh() {

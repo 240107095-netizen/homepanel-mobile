@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,12 +44,14 @@ fun LibraryScreen(
         onQueryChange = viewModel::onQueryChange,
         onFilterChange = viewModel::onFilterChange,
         onRetry = viewModel::load,
+        onRefresh = viewModel::refresh,
         onTitleClick = onTitleClick,
         modifier = modifier,
     )
 }
 
 // Только отображение: получает данные и лямбды, ничего не знает о сети
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryContent(
     state: LibraryUiState,
@@ -56,6 +60,7 @@ fun LibraryContent(
     onRetry: () -> Unit,
     onTitleClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onRefresh: () -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.library_title)) {
@@ -89,9 +94,15 @@ fun LibraryContent(
             UiState.Loading -> LoadingState()
             is UiState.Error -> ErrorState(stringResource(titles.message), onRetry)
             is UiState.Success -> when {
-                titles.data.isNotEmpty() -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(titles.data, key = { it.id }) { title ->
-                        TitleRow(title, onClick = { onTitleClick(title.id) })
+                titles.data.isNotEmpty() -> PullToRefreshBox(
+                    isRefreshing = state.isRefreshing,
+                    onRefresh = onRefresh,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        items(titles.data, key = { it.id }) { title ->
+                            TitleRow(title, onClick = { onTitleClick(title.id) })
+                        }
                     }
                 }
                 state.total == 0 -> EmptyState(

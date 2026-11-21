@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -62,17 +64,19 @@ fun DownloadsScreen(
     }
 
     Box(modifier.fillMaxSize()) {
-        DownloadsContent(state, onToggle = viewModel::toggle, onRetry = viewModel::load)
+        DownloadsContent(state, onToggle = viewModel::toggle, onRetry = viewModel::load, onRefresh = viewModel::pullRefresh)
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadsContent(
     state: DownloadsUiState,
     onToggle: (Torrent) -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
+    onRefresh: () -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.downloads_title)) {
@@ -89,8 +93,10 @@ fun DownloadsContent(
             is UiState.Success -> if (torrents.data.isEmpty()) {
                 EmptyState(stringResource(R.string.downloads_empty), hint = stringResource(R.string.downloads_empty_hint))
             } else {
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(torrents.data, key = { it.hash }) { TorrentRow(it, onToggle = { onToggle(it) }) }
+                PullToRefreshBox(state.isRefreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        items(torrents.data, key = { it.hash }) { TorrentRow(it, onToggle = { onToggle(it) }) }
+                    }
                 }
             }
         }

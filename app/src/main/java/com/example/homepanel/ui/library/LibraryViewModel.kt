@@ -29,6 +29,7 @@ data class LibraryUiState(
     val filter: LibraryFilter = LibraryFilter.ALL,
     val total: Int = 0,                                  // сколько тайтлов всего, до фильтра
     val titles: UiState<List<Title>> = UiState.Loading,  // уже отфильтрованные
+    val isRefreshing: Boolean = false,                   // свайп вниз: данные остаются на экране
 )
 
 // Логика экрана библиотеки. Экран только читает state и вызывает функции.
@@ -37,9 +38,10 @@ class LibraryViewModel(private val repository: MediaRepository) : ViewModel() {
     private val library = MutableStateFlow<UiState<List<Title>>>(UiState.Loading)
     private val query = MutableStateFlow("")
     private val filter = MutableStateFlow(LibraryFilter.ALL)
+    private val refreshing = MutableStateFlow(false)
 
     // Любое изменение (данные, текст поиска, вкладка) пересчитывает state
-    val state: StateFlow<LibraryUiState> = combine(library, query, filter) { lib, q, f ->
+    val state: StateFlow<LibraryUiState> = combine(library, query, filter, refreshing) { lib, q, f, r ->
         LibraryUiState(
             query = q,
             filter = f,
@@ -48,6 +50,7 @@ class LibraryViewModel(private val repository: MediaRepository) : ViewModel() {
                 is UiState.Success -> UiState.Success(lib.data.filter { it.matches(q, f) })
                 else -> lib
             },
+            isRefreshing = r,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LibraryUiState())
 
@@ -64,6 +67,23 @@ class LibraryViewModel(private val repository: MediaRepository) : ViewModel() {
                 throw e
             } catch (e: Exception) {
                 UiState.Error(e.toErrorMessage(R.string.error_load_library))
+            }
+        }
+    }
+
+    // Свайп вниз: обновляем, не стирая список; при ошибке старые данные остаются
+    fun refresh() {
+        if (refreshing.value) return
+        viewModelScope.launch {
+            refreshing.value = true
+            try {
+                library.value = UiState.Success(repository.getLibrary().sortedBy { it.name })
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (library.value !is UiState.Success) library.value = UiState.Error(e.toErrorMessage(R.string.error_load_library))
+            } finally {
+                refreshing.value = false
             }
         }
     }
