@@ -33,10 +33,13 @@ class DefaultAppContainer : AppContainer {
     // Ключей нет (local.properties пуст) — работаем на демо-данных
     private val hasServer = BuildConfig.JELLYFIN_URL.isNotBlank() && BuildConfig.JELLYFIN_KEY.isNotBlank()
 
-    // Незнакомые поля пропускаем, null-поля не отправляем (Jellyseerr не любит "seasons": null)
+    // Незнакомые поля пропускаем, null-поля не отправляем (Jellyseerr не любит "seasons": null).
+    // isLenient — год то строкой, то числом; coerceInputValues — null в поле со значением по умолчанию.
     private val json = Json {
         ignoreUnknownKeys = true
         explicitNulls = false
+        isLenient = true
+        coerceInputValues = true
     }
 
     // Один HTTP-клиент на все сервисы; каждый перехватчик добавляет ключ только своему сервису
