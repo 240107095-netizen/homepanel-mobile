@@ -102,4 +102,23 @@
     <string name="msg_rescan_started">✓ Сканирование запущено — новые файлы появятся через минуту</string>
     <string name="lang_system">Системный</string>
     <string name="error_load_server">Сервер не отвечает</string>
+    <string name="sources_trackers">Трекеры</string>
+    <string name="sources_online">Онлайн</string>
+    <string name="sources_title_loading">Узнаю подробности тайтла…</string>
+    <string name="sources_searching_trackers">Ищу по трекерам… до минуты</string>
+    <string name="sources_searching_online">Ищу на онлайн-сайтах…</string>
+    <string name="sources_no_releases">Раздач не нашлось</string>
+    <string name="sources_no_releases_hint">Попробуйте вкладку «Онлайн»</string>
+    <string name="sources_no_online">На онлайн-сайтах ничего нет</string>
+    <string name="error_load_sources">Не удалось поискать в этом источнике</string>
+    <string name="quality_unknown">качество не указано</string>
+    <string name="voice_dub">дубляж</string>
+    <string name="voice_multi">многоголосая</string>
+    <string name="voice_dual">двухголосая</string>
+    <string name="voice_author">авторская</string>
+    <string name="voice_russian">русская</string>
+    <string name="voice_original">оригинал</string>
+    <string name="voice_subs">субтитры</string>
+    <string name="release_season">сезон %1$d</string>
+    <string name="search_sources_hint">тап — выбрать источник ▸</string>
 </resources>

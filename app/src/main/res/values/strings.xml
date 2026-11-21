@@ -105,4 +105,23 @@
     <string name="lang_ru" translatable="false">Русский</string>
     <string name="lang_kk" translatable="false">Қазақша</string>
     <string name="error_load_server">Server is not responding</string>
+    <string name="sources_trackers">Trackers</string>
+    <string name="sources_online">Online</string>
+    <string name="sources_title_loading">Getting title details…</string>
+    <string name="sources_searching_trackers">Searching trackers… up to a minute</string>
+    <string name="sources_searching_online">Searching online sites…</string>
+    <string name="sources_no_releases">No releases found</string>
+    <string name="sources_no_releases_hint">Try the Online tab</string>
+    <string name="sources_no_online">Nothing found on online sites</string>
+    <string name="error_load_sources">Could not search this source</string>
+    <string name="quality_unknown">quality unknown</string>
+    <string name="voice_dub">dub</string>
+    <string name="voice_multi">multi-voice</string>
+    <string name="voice_dual">two-voice</string>
+    <string name="voice_author">author\'s</string>
+    <string name="voice_russian">Russian</string>
+    <string name="voice_original">original</string>
+    <string name="voice_subs">subtitles</string>
+    <string name="release_season">S%1$d</string>
+    <string name="search_sources_hint">tap to choose a source ▸</string>
 </resources>

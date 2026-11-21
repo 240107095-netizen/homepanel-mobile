@@ -1,5 +1,6 @@
 package com.example.homepanel.ui.search
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ import com.example.homepanel.ui.PreviewData
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
+    onOpenSources: (SearchResult) -> Unit = {},
     viewModel: SearchViewModel = viewModel(factory = SearchViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -75,6 +77,7 @@ fun SearchScreen(
             onQueryChange = viewModel::onQueryChange,
             onRetry = viewModel::retry,
             onRequest = viewModel::askRequest,
+            onOpen = onOpenSources,
         )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
@@ -91,6 +94,7 @@ fun SearchContent(
     onRetry: () -> Unit,
     onRequest: (SearchResult) -> Unit,
     modifier: Modifier = Modifier,
+    onOpen: (SearchResult) -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.search_title))
@@ -112,7 +116,7 @@ fun SearchContent(
             } else {
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(results.data, key = { "${it.type}-${it.tmdbId}" }) { item ->
-                        SearchResultRow(item, onRequest = { onRequest(item) })
+                        SearchResultRow(item, onRequest = { onRequest(item) }, onOpen = { onOpen(item) })
                     }
                 }
             }
@@ -122,10 +126,11 @@ fun SearchContent(
 
 // Постер там, где выбирают: маленький постер + название, мета и статус
 @Composable
-private fun SearchResultRow(item: SearchResult, onRequest: () -> Unit) {
+private fun SearchResultRow(item: SearchResult, onRequest: () -> Unit, onOpen: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
+            .clickable(onClick = onOpen)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -145,6 +150,8 @@ private fun SearchResultRow(item: SearchResult, onRequest: () -> Unit) {
                 MediaStatus.REQUESTED -> StatusBadge("…", stringResource(R.string.status_requested), StatusKind.WAIT)
                 MediaStatus.NONE -> TuiButton(stringResource(R.string.action_request), onRequest)
             }
+            Text(stringResource(R.string.search_sources_hint), style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.tui.muted)
         }
     }
 }

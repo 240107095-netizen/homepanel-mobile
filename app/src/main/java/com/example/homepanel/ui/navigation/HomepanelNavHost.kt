@@ -28,6 +28,7 @@ import com.example.homepanel.ui.library.LibraryScreen
 import com.example.homepanel.ui.search.SearchScreen
 import com.example.homepanel.ui.season.SeasonScreen
 import com.example.homepanel.ui.server.ServerScreen
+import com.example.homepanel.ui.sources.SourcesScreen
 import com.example.homepanel.ui.theme.tui
 import com.example.homepanel.ui.title.TitleScreen
 
@@ -77,7 +78,24 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
                 SeasonScreen(onBack = { navController.navigateUp() })
             }
             composable(Routes.DOWNLOADS) { DownloadsScreen() }
-            composable(Routes.SEARCH) { SearchScreen() }
+            composable(Routes.SEARCH) {
+                SearchScreen(onOpenSources = { item ->
+                    navController.navigate(Routes.sources(item.type.name, item.tmdbId, item.name))
+                })
+            }
+            composable(
+                route = Routes.SOURCES,
+                arguments = listOf(
+                    navArgument(Routes.ARG_TYPE) { type = NavType.StringType },
+                    navArgument(Routes.ARG_TMDB_ID) { type = NavType.IntType },
+                    navArgument(Routes.ARG_TITLE) {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    },
+                ),
+            ) {
+                SourcesScreen(onBack = { navController.navigateUp() })
+            }
             composable(Routes.SERVER) { ServerScreen() }
         }
     }

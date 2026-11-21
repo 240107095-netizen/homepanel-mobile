@@ -1,5 +1,6 @@
 package com.example.homepanel.ui.navigation
 
+import android.net.Uri
 import androidx.annotation.StringRes
 import com.example.homepanel.R
 
@@ -20,6 +21,14 @@ object Routes {
     const val ARG_SEASON_ID = "seasonId"
     const val SEASON = "season/{$ARG_SERIES_ID}/{$ARG_SEASON_ID}"
     fun season(seriesId: String, seasonId: String) = "season/$seriesId/$seasonId"
+
+    // Источники для найденного тайтла: тип и TMDB id — обязательные (id — Int),
+    // название — необязательный query-аргумент, чтобы шапка была видна сразу
+    const val ARG_TYPE = "type"
+    const val ARG_TMDB_ID = "tmdbId"
+    const val ARG_TITLE = "title"
+    const val SOURCES = "sources/{$ARG_TYPE}/{$ARG_TMDB_ID}?$ARG_TITLE={$ARG_TITLE}"
+    fun sources(type: String, tmdbId: Int, title: String) = "sources/$type/$tmdbId?$ARG_TITLE=${Uri.encode(title)}"
 }
 
 // Вкладки нижней панели: маршрут, подпись и текстовый значок
