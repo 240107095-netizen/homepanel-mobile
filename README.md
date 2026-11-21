@@ -34,6 +34,14 @@ server.
 - **Find new.** Searches TMDB through Jellyseerr with posters and status
   (`✓ in library`, `… requested`). *Request* asks for confirmation and explains
   what will happen; after that the server downloads the title by itself.
+- **Sources (like the desktop panel).** Tap a found title to open its sources:
+  - *Trackers* — releases from all trackers via Prowlarr, with quality, voice-over
+    (dub, multi-voice, original…), size and seeders parsed from the release name;
+    filters by quality and voice.
+  - *Online* — HDRezka (and AnimeGo for anime) via MediaDL, with voice, quality,
+    season and "only missing episodes" choices.
+  Downloading a tracker release goes through Radarr/Sonarr so the file lands in the
+  library: if the title isn't there yet, it's added with the chosen quality profile.
 - **Server.** Disk usage, online/offline status and version of every service, and
   a button to rescan the Jellyfin library.
 - **Three languages: English (default), Russian and Kazakh.** You can switch
@@ -50,7 +58,7 @@ UI (Compose screens)  ──events──▶  ViewModel  ──suspend calls─�
         ▲                              │                              │
         └────── StateFlow<UiState> ────┘           FakeMediaRepository / NetworkMediaRepository
                                                                       │
-                                         Retrofit APIs: Jellyfin · qBittorrent · Jellyseerr · Radarr
+                                         Retrofit APIs: Jellyfin · qBittorrent · Jellyseerr · Radarr/Sonarr · Prowlarr · MediaDL
 ```
 
 - **Model / data layer.** `data/model` holds plain data classes (`Title`,
@@ -82,6 +90,7 @@ Navigation Compose with string routes, defined in `ui/navigation/Routes.kt`.
 | `season/{seriesId}/{seasonId}` | Season episodes | two ids |
 | `downloads` | Downloads (tab) | — |
 | `search` | Find new (tab) | — |
+| `sources/{type}/{tmdbId}?title={title}` | Trackers / Online sources | `type` (String), `tmdbId` (**Int**), optional `title` |
 | `server` | Server (tab) | — |
 
 - Arguments are declared with `navArgument(...)`. Each ViewModel reads them from
