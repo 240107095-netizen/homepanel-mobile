@@ -37,6 +37,11 @@ android {
         buildConfigField("String", "SEERR_KEY", secret("seerr.key"))
         buildConfigField("String", "RADARR_URL", secret("radarr.url"))
         buildConfigField("String", "RADARR_KEY", secret("radarr.key"))
+        buildConfigField("String", "SONARR_URL", secret("sonarr.url"))
+        buildConfigField("String", "SONARR_KEY", secret("sonarr.key"))
+        buildConfigField("String", "PROWLARR_URL", secret("prowlarr.url"))
+        buildConfigField("String", "PROWLARR_KEY", secret("prowlarr.key"))
+        buildConfigField("String", "MEDIADL_URL", secret("mediadl.url"))
     }
 
     buildTypes {

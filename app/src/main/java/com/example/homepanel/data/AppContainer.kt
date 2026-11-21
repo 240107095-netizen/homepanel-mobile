@@ -46,6 +46,8 @@ class DefaultAppContainer : AppContainer {
             )
             .addInterceptor(ApiKeyInterceptor(BuildConfig.SEERR_URL, "X-Api-Key", BuildConfig.SEERR_KEY))
             .addInterceptor(ApiKeyInterceptor(BuildConfig.RADARR_URL, "X-Api-Key", BuildConfig.RADARR_KEY))
+            .addInterceptor(ApiKeyInterceptor(BuildConfig.SONARR_URL, "X-Api-Key", BuildConfig.SONARR_KEY))
+            .addInterceptor(ApiKeyInterceptor(BuildConfig.PROWLARR_URL, "X-Api-Key", BuildConfig.PROWLARR_KEY))
             .cookieJar(MemoryCookieJar())  // сессия qBittorrent
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
