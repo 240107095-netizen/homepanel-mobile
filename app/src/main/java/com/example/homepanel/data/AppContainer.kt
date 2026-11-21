@@ -28,7 +28,11 @@ class DefaultAppContainer : AppContainer {
     // Ключей нет (local.properties пуст) — работаем на демо-данных
     private val hasServer = BuildConfig.JELLYFIN_URL.isNotBlank() && BuildConfig.JELLYFIN_KEY.isNotBlank()
 
-    private val json = Json { ignoreUnknownKeys = true }
+    // Незнакомые поля пропускаем, null-поля не отправляем (Jellyseerr не любит "seasons": null)
+    private val json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+    }
 
     // Один HTTP-клиент на все сервисы; каждый перехватчик добавляет ключ только своему сервису
     override val httpClient: OkHttpClient by lazy {

@@ -11,6 +11,7 @@ import com.example.homepanel.data.MediaRepository
 import com.example.homepanel.data.model.MediaStatus
 import com.example.homepanel.data.model.SearchResult
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.toErrorMessage
 import com.example.homepanel.ui.UserMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
@@ -63,7 +64,7 @@ class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            UiState.Error(R.string.error_search)
+            UiState.Error(e.toErrorMessage(R.string.error_search))
         }
         _state.update { it.copy(results = result) }
     }

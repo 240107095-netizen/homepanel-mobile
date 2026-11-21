@@ -11,6 +11,7 @@ import com.example.homepanel.data.MediaRepository
 import com.example.homepanel.data.model.Title
 import com.example.homepanel.data.model.TitleType
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.toErrorMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,7 +63,7 @@ class LibraryViewModel(private val repository: MediaRepository) : ViewModel() {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                UiState.Error(R.string.error_load_library)
+                UiState.Error(e.toErrorMessage(R.string.error_load_library))
             }
         }
     }

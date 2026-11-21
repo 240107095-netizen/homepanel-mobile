@@ -11,6 +11,7 @@ import com.example.homepanel.data.MediaRepository
 import com.example.homepanel.data.model.Torrent
 import com.example.homepanel.data.model.TorrentState
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.toErrorMessage
 import com.example.homepanel.ui.UserMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -64,7 +65,7 @@ class DownloadsViewModel(private val repository: MediaRepository) : ViewModel() 
             // Данные уже были — не стираем их, а помечаем устаревшими
             _state.update {
                 if (it.torrents is UiState.Success) it.copy(stale = true)
-                else it.copy(torrents = UiState.Error(R.string.error_load_downloads))
+                else it.copy(torrents = UiState.Error(e.toErrorMessage(R.string.error_load_downloads)))
             }
         }
     }

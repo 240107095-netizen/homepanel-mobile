@@ -14,6 +14,7 @@ import com.example.homepanel.data.model.Season
 import com.example.homepanel.data.model.Title
 import com.example.homepanel.data.model.TitleType
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.toErrorMessage
 import com.example.homepanel.ui.navigation.Routes
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +50,7 @@ class TitleViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                UiState.Error(R.string.error_load_title)
+                UiState.Error(e.toErrorMessage(R.string.error_load_title))
             }
         }
     }

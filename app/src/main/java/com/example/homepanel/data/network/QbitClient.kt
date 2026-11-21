@@ -7,6 +7,7 @@ import kotlinx.coroutines.sync.withLock
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 
@@ -35,7 +36,7 @@ class QbitClient(
         val r = api.login(username, password)
         if (!r.isSuccessful) throw HttpException(r)
         // При неверном пароле qBittorrent отвечает 200 с текстом «Fails.»
-        if (r.body()?.trim() == "Fails.") throw HttpException(Response.error<Unit>(401, okhttp3.ResponseBody.create(null, "")))
+        if (r.body()?.trim() == "Fails.") throw HttpException(Response.error<Unit>(401, "".toResponseBody()))
     }
 
     // Выполнить запрос; на 403 — залогиниться и повторить один раз

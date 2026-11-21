@@ -12,6 +12,7 @@ import com.example.homepanel.R
 import com.example.homepanel.data.MediaRepository
 import com.example.homepanel.data.model.Episode
 import com.example.homepanel.ui.UiState
+import com.example.homepanel.ui.toErrorMessage
 import com.example.homepanel.ui.navigation.Routes
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +44,7 @@ class SeasonViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                UiState.Error(R.string.error_load_season)
+                UiState.Error(e.toErrorMessage(R.string.error_load_season))
             }
         }
     }
