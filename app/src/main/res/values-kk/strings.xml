@@ -94,5 +94,7 @@
     <string name="service_online">жұмыс істеп тұр</string>
     <string name="service_offline">жауап бермейді</string>
     <string name="action_refresh">Жаңарту</string>
+    <string name="server_language">Тіл</string>
+    <string name="lang_system">Жүйелік</string>
     <string name="error_load_server">Сервер жауап бермейді</string>
 </resources>

@@ -98,5 +98,7 @@
     <string name="service_online">работает</string>
     <string name="service_offline">не отвечает</string>
     <string name="action_refresh">Обновить</string>
+    <string name="server_language">Язык</string>
+    <string name="lang_system">Системный</string>
     <string name="error_load_server">Сервер не отвечает</string>
 </resources>

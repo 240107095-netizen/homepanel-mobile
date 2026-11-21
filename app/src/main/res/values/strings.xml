@@ -97,5 +97,11 @@
     <string name="service_online">online</string>
     <string name="service_offline">offline</string>
     <string name="action_refresh">Refresh</string>
+    <string name="server_language">Language</string>
+    <string name="lang_system">System</string>
+    <!-- названия языков пишем на самих языках, не переводим -->
+    <string name="lang_en" translatable="false">English</string>
+    <string name="lang_ru" translatable="false">Русский</string>
+    <string name="lang_kk" translatable="false">Қазақша</string>
     <string name="error_load_server">Server is not responding</string>
 </resources>

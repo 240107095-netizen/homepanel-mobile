@@ -25,6 +25,7 @@ import com.example.homepanel.data.model.ServerStatus
 import com.example.homepanel.data.model.ServiceStatus
 import com.example.homepanel.ui.UiState
 import com.example.homepanel.ui.components.ErrorState
+import com.example.homepanel.ui.components.LanguageSwitcher
 import com.example.homepanel.ui.components.LoadingState
 import com.example.homepanel.ui.components.StatusBadge
 import com.example.homepanel.ui.components.StatusKind
@@ -68,6 +69,9 @@ fun ServerContent(state: UiState<ServerStatus>, onRefresh: () -> Unit, modifier:
                 state.data.services.forEach { ServiceRow(it) }
                 Spacer(Modifier.height(12.dp))
                 TuiButton(stringResource(R.string.action_refresh), onClick = onRefresh)
+                Spacer(Modifier.height(20.dp))
+                SectionTitle(stringResource(R.string.server_language))
+                LanguageSwitcher()
             }
         }
     }

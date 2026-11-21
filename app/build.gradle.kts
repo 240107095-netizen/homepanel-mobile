@@ -55,6 +55,11 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    // Список языков (en, ru, kk) собирается из папок values-* автоматически:
+    // его видят системные настройки «Язык приложения» на Android 13+
+    androidResources {
+        generateLocaleConfig = true
+    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -68,6 +73,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")  // смена языка внутри приложения
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.navigation:navigation-compose:2.8.4")
