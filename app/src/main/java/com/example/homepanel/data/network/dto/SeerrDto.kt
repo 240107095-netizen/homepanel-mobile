@@ -50,7 +50,7 @@ data class SeerrExternalIds(val tvdbId: Int? = null)
 
 private const val ANIMATION_GENRE = 16
 
-// en — ответ на английском, local — на языке интерфейса (для онлайн-сайтов)
+// en — ответ на английском (для трекеров), local — на русском (для онлайн-сайтов)
 fun detailsToTitleInfo(en: SeerrDetails, local: SeerrDetails, type: TitleType): TitleInfo {
     val date = en.releaseDate ?: en.firstAirDate
     return TitleInfo(

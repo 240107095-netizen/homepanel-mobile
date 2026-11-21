@@ -2,10 +2,15 @@ package com.example.homepanel.data
 
 import com.example.homepanel.BuildConfig
 import com.example.homepanel.data.network.ApiKeyInterceptor
+import com.example.homepanel.data.network.ArrGrabber
 import com.example.homepanel.data.network.JellyfinApi
+import com.example.homepanel.data.network.MediaDlApi
 import com.example.homepanel.data.network.MemoryCookieJar
 import com.example.homepanel.data.network.QbitApi
+import com.example.homepanel.data.network.ProwlarrApi
 import com.example.homepanel.data.network.QbitClient
+import com.example.homepanel.data.network.RadarrLibraryApi
+import com.example.homepanel.data.network.SonarrApi
 import com.example.homepanel.data.network.RadarrApi
 import com.example.homepanel.data.network.SeerrApi
 import kotlinx.serialization.json.Json
@@ -54,9 +59,14 @@ class DefaultAppContainer : AppContainer {
             .build()
     }
 
-    private fun retrofit(baseUrl: String): Retrofit = Retrofit.Builder()
+    // Живой поиск по трекерам и онлайн-сайтам идёт до минуты-двух — свой длинный таймаут
+    private val slowClient: OkHttpClient by lazy {
+        httpClient.newBuilder().readTimeout(150, TimeUnit.SECONDS).build()
+    }
+
+    private fun retrofit(baseUrl: String, client: OkHttpClient = httpClient): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl.trimEnd('/') + "/")
-        .client(httpClient)
+        .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())  // ответы-строки («Ok.», версия)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
@@ -75,6 +85,12 @@ class DefaultAppContainer : AppContainer {
                 ),
                 seerr = retrofit(BuildConfig.SEERR_URL).create(SeerrApi::class.java),
                 radarr = retrofit(BuildConfig.RADARR_URL).create(RadarrApi::class.java),
+                prowlarr = retrofit(BuildConfig.PROWLARR_URL, slowClient).create(ProwlarrApi::class.java),
+                arr = ArrGrabber(
+                    retrofit(BuildConfig.RADARR_URL, slowClient).create(RadarrLibraryApi::class.java),
+                    retrofit(BuildConfig.SONARR_URL, slowClient).create(SonarrApi::class.java),
+                ),
+                mediaDl = retrofit(BuildConfig.MEDIADL_URL, slowClient).create(MediaDlApi::class.java),
             )
         }
     }

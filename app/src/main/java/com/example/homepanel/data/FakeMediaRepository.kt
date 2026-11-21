@@ -2,11 +2,17 @@ package com.example.homepanel.data
 
 import com.example.homepanel.data.model.Episode
 import com.example.homepanel.data.model.MediaStatus
+import com.example.homepanel.data.model.OnlineDetails
+import com.example.homepanel.data.model.OnlineResult
+import com.example.homepanel.data.model.OnlineSite
+import com.example.homepanel.data.model.QualityProfile
+import com.example.homepanel.data.model.Release
 import com.example.homepanel.data.model.SearchResult
 import com.example.homepanel.data.model.Season
 import com.example.homepanel.data.model.ServerStatus
 import com.example.homepanel.data.model.ServiceStatus
 import com.example.homepanel.data.model.Title
+import com.example.homepanel.data.model.TitleInfo
 import com.example.homepanel.data.model.TitleType
 import com.example.homepanel.data.model.Torrent
 import com.example.homepanel.data.model.TorrentState
@@ -114,6 +120,46 @@ class FakeMediaRepository(private val latencyMs: Long = 400) : MediaRepository {
     }
 
     override suspend fun refreshLibrary() {
+        delay(latencyMs)
+    }
+
+    override suspend fun getTitleInfo(type: TitleType, tmdbId: Int): TitleInfo {
+        delay(latencyMs)
+        return TitleInfo(tmdbId, type, "Дюна", "Dune", "Dune", 2021, isAnime = false, tvdbId = null)
+    }
+
+    override suspend fun searchReleases(info: TitleInfo): List<Release> {
+        delay(latencyMs * 2)
+        return listOf(
+            Release("g1", 6, "RuTracker.org", "Dune (2021) WEB-DL 2160p HDR Dub RUS Eng", 58_300_000_000, 214, 12),
+            Release("g2", 3, "NoNaMe Club", "Dune: Part One (2021) BDRip 1080p MVO", 14_700_000_000, 96, 3),
+            Release("g3", 5, "The Pirate Bay", "Dune.2021.1080p.WEBRip.x265", 2_100_000_000, 40, 8),
+        )
+    }
+
+    override suspend fun isInArr(info: TitleInfo): Boolean = false
+
+    override suspend fun getProfiles(type: TitleType): List<QualityProfile> =
+        listOf(QualityProfile(4, "HD-1080p"), QualityProfile(7, "1080p · RU"), QualityProfile(5, "Ultra-HD"))
+
+    override suspend fun grabRelease(info: TitleInfo, release: Release, profileId: Int?) {
+        delay(latencyMs * 3)
+    }
+
+    override suspend fun searchOnline(info: TitleInfo): List<OnlineResult> {
+        delay(latencyMs * 2)
+        return listOf(OnlineResult("demo", 0, OnlineSite.REZKA, "Дюна", "2021", null))
+    }
+
+    override suspend fun getOnlineDetails(result: OnlineResult, season: Int?): OnlineDetails {
+        delay(latencyMs)
+        return OnlineDetails(result.title, isFilm = true, seasons = listOf(1), season = 1, totalEpisodes = 1,
+            dubs = listOf("Дубляж", "Оригинал (+субтитры)"), qualities = listOf(1080, 720, 480), existing = emptyList())
+    }
+
+    override suspend fun queueOnline(
+        result: OnlineResult, details: OnlineDetails, dub: String, quality: Int, season: Int, episodes: List<Int>,
+    ) {
         delay(latencyMs)
     }
 

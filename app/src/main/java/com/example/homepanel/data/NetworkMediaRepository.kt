@@ -1,37 +1,55 @@
 package com.example.homepanel.data
 
 import com.example.homepanel.data.model.Episode
+import com.example.homepanel.data.model.OnlineDetails
+import com.example.homepanel.data.model.OnlineResult
+import com.example.homepanel.data.model.OnlineSite
+import com.example.homepanel.data.model.QualityProfile
+import com.example.homepanel.data.model.Release
 import com.example.homepanel.data.model.SearchResult
 import com.example.homepanel.data.model.Season
 import com.example.homepanel.data.model.ServerStatus
 import com.example.homepanel.data.model.ServiceStatus
 import com.example.homepanel.data.model.Title
+import com.example.homepanel.data.model.TitleInfo
 import com.example.homepanel.data.model.TitleType
 import com.example.homepanel.data.model.Torrent
+import com.example.homepanel.data.network.ArrGrabber
 import com.example.homepanel.data.network.JellyfinApi
+import com.example.homepanel.data.network.MediaDlApi
+import com.example.homepanel.data.network.ProwlarrApi
 import com.example.homepanel.data.network.QbitClient
 import com.example.homepanel.data.network.RadarrApi
 import com.example.homepanel.data.network.SeerrApi
+import com.example.homepanel.data.network.dto.MdlJobBody
 import com.example.homepanel.data.network.dto.SeerrRequestBody
+import com.example.homepanel.data.network.dto.detailsToTitleInfo
+import com.example.homepanel.data.network.dto.toModel
+import com.example.homepanel.data.network.dto.toRelease
 import com.example.homepanel.data.network.dto.toEpisode
 import com.example.homepanel.data.network.dto.toSearchResult
 import com.example.homepanel.data.network.dto.toSeason
 import com.example.homepanel.data.network.dto.toTitle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.net.URLEncoder
 
 // Настоящие данные с сервера:
-// библиотека — Jellyfin, загрузки — qBittorrent, поиск и заявки — Jellyseerr, диск — Radarr.
+// библиотека — Jellyfin, загрузки — qBittorrent, поиск и заявки — Jellyseerr, диск — Radarr,
+// раздачи — Prowlarr (скачивание через Radarr/Sonarr), онлайн-сайты — MediaDL.
 class NetworkMediaRepository(
     private val jellyfin: JellyfinApi,
     private val jellyfinUrl: String,
     private val qbit: QbitClient,
     private val seerr: SeerrApi,
     private val radarr: RadarrApi,
+    private val prowlarr: ProwlarrApi,
+    private val arr: ArrGrabber,
+    private val mediaDl: MediaDlApi,
 ) : MediaRepository {
 
     // Учётка в Jellyfin одна (семья смотрит под ней) — её id запоминаем после первого запроса
@@ -102,9 +120,72 @@ class NetworkMediaRepository(
 
     override suspend fun refreshLibrary() = jellyfin.refreshLibrary()
 
+    // Английское название — для трекеров, русское — для онлайн-сайтов (они русскоязычные)
+    override suspend fun getTitleInfo(type: TitleType, tmdbId: Int): TitleInfo = coroutineScope {
+        val en = async { if (type == TitleType.MOVIE) seerr.movie(tmdbId, "en") else seerr.tv(tmdbId, "en") }
+        val ru = async { if (type == TitleType.MOVIE) seerr.movie(tmdbId, "ru") else seerr.tv(tmdbId, "ru") }
+        detailsToTitleInfo(en.await(), ru.await(), type)
+    }
+
+    override suspend fun searchReleases(info: TitleInfo): List<Release> {
+        val categories = listOf(if (info.type == TitleType.MOVIE) 2000 else 5000)
+        var found = prowlarr.search(info.trackerQuery, categories)
+        // Без подзаголовка раздачи находятся чаще
+        if (found.isEmpty()) info.shortQuery?.let { found = prowlarr.search(it, categories) }
+        return found.map { it.toRelease() }
+            .filter { info.isAnime || it.indexer !in ANIME_ONLY_INDEXERS }
+            .sortedWith(compareByDescending<Release> { it.seeders }.thenByDescending { it.sizeBytes })
+    }
+
+    override suspend fun isInArr(info: TitleInfo): Boolean = arr.isAdded(info)
+
+    override suspend fun getProfiles(type: TitleType): List<QualityProfile> = arr.profiles(type)
+
+    override suspend fun grabRelease(info: TitleInfo, release: Release, profileId: Int?) =
+        arr.grab(info, release, profileId)
+
+    // Аниме ищем на AnimeGo и HDRezka, остальное — на HDRezka. Сайт упал — показываем остальные.
+    override suspend fun searchOnline(info: TitleInfo): List<OnlineResult> = coroutineScope {
+        val sites = if (info.isAnime) listOf(OnlineSite.ANIMEGO, OnlineSite.REZKA) else listOf(OnlineSite.REZKA)
+        val query = info.name.ifBlank { info.originalName }
+        val answers = sites.map { site ->
+            async { probe { site to mediaDl.search(query, site.category, site.source) } }
+        }.awaitAll()
+        if (answers.all { it == null }) throw IllegalStateException("online sources are down")
+        answers.filterNotNull().flatMap { (site, page) -> page.results.map { it.toModel(page.searchId, site) } }
+    }
+
+    override suspend fun getOnlineDetails(result: OnlineResult, season: Int?): OnlineDetails {
+        val d = mediaDl.details(result.searchId, result.idx, season)
+        if (d.error != null) throw IllegalStateException(d.error)
+        return d.toModel()
+    }
+
+    override suspend fun queueOnline(
+        result: OnlineResult, details: OnlineDetails, dub: String, quality: Int, season: Int, episodes: List<Int>,
+    ) {
+        mediaDl.createJob(
+            MdlJobBody(
+                searchId = result.searchId,
+                idx = result.idx,
+                mediaType = result.site.category,
+                dub = dub,
+                quality = quality.toString(),
+                season = season,
+                episodes = if (details.isFilm) listOf(0) else episodes,
+                showTitle = details.title,
+            ),
+        )
+    }
+
     private fun service(name: String, version: String?) = ServiceStatus(name, version != null, version)
 
     // null — сервис не ответил
+    private companion object {
+        // Трекеры только с аниме: для обычного кино там один шум
+        val ANIME_ONLY_INDEXERS = setOf("Nyaa.si", "Anime Tosho")
+    }
+
     private suspend fun <T> probe(block: suspend () -> T): T? = try {
         block()
     } catch (e: CancellationException) {
