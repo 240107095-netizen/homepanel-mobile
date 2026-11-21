@@ -7,9 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import com.example.homepanel.ui.library.LibraryScreen
 import com.example.homepanel.ui.theme.HomepanelTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             HomepanelTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
-                    Text(stringResource(R.string.app_name), modifier = Modifier.padding(padding))
+                    LibraryScreen(onTitleClick = {}, modifier = Modifier.padding(padding))
                 }
             }
         }

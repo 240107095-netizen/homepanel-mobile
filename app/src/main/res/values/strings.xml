@@ -5,4 +5,17 @@
     <string name="loading">Loading…</string>
     <string name="retry">Retry</string>
     <string name="back">Back</string>
+
+    <!-- тайтлы -->
+    <string name="type_movie">movie</string>
+    <string name="type_series">series</string>
+    <string name="badge_watched">watched</string>
+    <string name="badge_new">new</string>
+
+    <!-- библиотека -->
+    <string name="library_title">Library</string>
+    <string name="library_count">%1$d titles</string>
+    <string name="library_empty">Library is empty</string>
+    <string name="library_empty_hint">Add movies on the server and they will appear here</string>
+    <string name="error_load_library">Could not load the library</string>
 </resources>
