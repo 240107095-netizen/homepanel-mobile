@@ -193,4 +193,7 @@
     <string name="action_edit">Edit</string>
     <string name="action_save_changes">Save</string>
     <string name="msg_updated">✎ %1$s — updated</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_undo">Undo</string>
+    <string name="msg_deleted">✗ %1$s — deleted</string>
 </resources>

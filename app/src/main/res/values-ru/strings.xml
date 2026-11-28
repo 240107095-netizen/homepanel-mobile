@@ -192,4 +192,7 @@
     <string name="action_edit">Изменить</string>
     <string name="action_save_changes">Сохранить</string>
     <string name="msg_updated">✎ %1$s — изменено</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_undo">Отменить</string>
+    <string name="msg_deleted">✗ %1$s — удалено</string>
 </resources>

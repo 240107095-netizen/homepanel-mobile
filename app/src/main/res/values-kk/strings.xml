@@ -186,4 +186,7 @@
     <string name="action_edit">Өзгерту</string>
     <string name="action_save_changes">Сақтау</string>
     <string name="msg_updated">✎ %1$s — өзгертілді</string>
+    <string name="action_delete">Жою</string>
+    <string name="action_undo">Болдырмау</string>
+    <string name="msg_deleted">✗ %1$s — жойылды</string>
 </resources>

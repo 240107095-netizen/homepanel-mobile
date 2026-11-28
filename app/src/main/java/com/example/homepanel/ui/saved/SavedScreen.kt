@@ -16,8 +16,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +73,16 @@ fun SavedScreen(
         }
     }
 
+    // Удалили — предлагаем отменить
+    val deletedText = state.deleted?.let { stringResource(R.string.msg_deleted, it.name) }
+    val undoLabel = stringResource(R.string.action_undo)
+    LaunchedEffect(state.deleted) {
+        val item = state.deleted ?: return@LaunchedEffect
+        val result = snackbar.showSnackbar(deletedText.orEmpty(), actionLabel = undoLabel, duration = SnackbarDuration.Short)
+        if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete(item)
+        viewModel.onDeletedShown()
+    }
+
     Box(modifier.fillMaxSize()) {
         SavedContent(
             state,
@@ -82,7 +94,12 @@ fun SavedScreen(
     }
 
     state.editing?.let { item ->
-        EditDialog(item, onSave = viewModel::saveEdit, onDismiss = viewModel::dismissEdit)
+        EditDialog(
+            item,
+            onSave = viewModel::saveEdit,
+            onDelete = { viewModel.delete(item) },
+            onDismiss = viewModel::dismissEdit,
+        )
     }
 }
 
@@ -184,7 +201,12 @@ private fun SavedRow(item: SavedTitle, onClick: () -> Unit, onEdit: () -> Unit, 
 
 // Изменение записи: заметка и «просмотрено». «Отмена» ничего не меняет.
 @Composable
-private fun EditDialog(item: SavedTitle, onSave: (note: String, watched: Boolean) -> Unit, onDismiss: () -> Unit) {
+private fun EditDialog(
+    item: SavedTitle,
+    onSave: (note: String, watched: Boolean) -> Unit,
+    onDelete: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     var note by rememberSaveable(item.id) { mutableStateOf(item.note) }
     var watched by rememberSaveable(item.id) { mutableStateOf(item.watched) }
     AlertDialog(
@@ -219,7 +241,12 @@ private fun EditDialog(item: SavedTitle, onSave: (note: String, watched: Boolean
             }
         },
         confirmButton = { TuiButton(stringResource(R.string.action_save_changes), { onSave(note, watched) }) },
-        dismissButton = { TuiButton(stringResource(R.string.cancel), onDismiss, color = MaterialTheme.tui.muted) },
+        dismissButton = {
+            Row {
+                TuiButton(stringResource(R.string.action_delete), onDelete, color = MaterialTheme.colorScheme.error)
+                TuiButton(stringResource(R.string.cancel), onDismiss, color = MaterialTheme.tui.muted)
+            }
+        },
     )
 }
 

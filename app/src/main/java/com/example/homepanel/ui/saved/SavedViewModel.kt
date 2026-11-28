@@ -25,6 +25,7 @@ data class SavedUiState(
     val titles: UiState<List<SavedTitle>> = UiState.Loading,
     val editing: SavedTitle? = null,       // открыт диалог изменения
     val message: UserMessage? = null,
+    val deleted: SavedTitle? = null,       // только что удалили — snackbar с «Отменить»
 )
 
 // Room отдаёт Flow: любое изменение таблицы (здесь или в поиске) сразу приходит сюда,
@@ -33,13 +34,14 @@ class SavedViewModel(private val repository: SavedRepository) : ViewModel() {
 
     private val editing = MutableStateFlow<SavedTitle?>(null)
     private val message = MutableStateFlow<UserMessage?>(null)
+    private val deleted = MutableStateFlow<SavedTitle?>(null)
 
     private val titles: Flow<UiState<List<SavedTitle>>> = repository.observeSaved()
         .map<List<SavedTitle>, UiState<List<SavedTitle>>> { UiState.Success(it) }
         .catch { emit(UiState.Error(R.string.error_load_saved)) }
 
-    val state: StateFlow<SavedUiState> = combine(titles, editing, message) { list, edit, msg ->
-        SavedUiState(list, edit, msg)
+    val state: StateFlow<SavedUiState> = combine(titles, editing, message, deleted) { list, edit, msg, del ->
+        SavedUiState(list, edit, msg, del)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SavedUiState())
 
     fun startEdit(item: SavedTitle) {
@@ -63,6 +65,24 @@ class SavedViewModel(private val repository: SavedRepository) : ViewModel() {
     // Быстрое переключение «просмотрено» прямо в списке
     fun toggleWatched(item: SavedTitle) {
         viewModelScope.launch { repository.update(item.copy(watched = !item.watched)) }
+    }
+
+    // Delete: строка уходит из базы сразу, но копию держим — вдруг нажмут «Отменить»
+    fun delete(item: SavedTitle) {
+        editing.value = null
+        viewModelScope.launch {
+            repository.delete(item)
+            deleted.value = item
+        }
+    }
+
+    // Возвращаем ту же строку (с тем же id, заметкой и датой)
+    fun undoDelete(item: SavedTitle) {
+        viewModelScope.launch { repository.restore(item) }
+    }
+
+    fun onDeletedShown() {
+        deleted.value = null
     }
 
     fun onMessageShown() {
