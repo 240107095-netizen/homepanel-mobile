@@ -30,7 +30,17 @@ server.
 - **Downloads.** The live qBittorrent queue, refreshed every 2 seconds while the
   screen is visible. Each item shows a progress bar, speed, ETA and a pause/resume
   button. Changes appear at once; if the server refuses, the change is undone and
-  a message explains why.
+  a message explains why. A second section shows online downloads from MediaDL
+  (episodes done, errors, *Retry* for a failed job).
+- **New episodes (public API).** For every series in the library the app asks
+  [TVmaze](https://www.tvmaze.com/api) how many episodes have aired and when the
+  next one comes out, and compares it with what is on the server:
+  `⚠ 10 new · server has 10 of 20`, `▶ next S03E01 · in 6 days`. Posters come
+  from TVmaze through Coil. Opened from the Library (`new episodes ▸`).
+- **Saved for later (local database).** Tap ☆ next to a search result to save it.
+  The *Saved* tab lists saved titles from a Room database: add a note, mark as
+  watched, delete (with *Undo*), open sources. Sort order and "hide watched" are
+  stored in DataStore. Everything stays after the app is closed and reopened.
 - **Find new.** Searches TMDB through Jellyseerr with posters and status
   (`✓ in library`, `… requested`). *Request* asks for confirmation and explains
   what will happen; after that the server downloads the title by itself.
@@ -59,6 +69,10 @@ UI (Compose screens)  ──events──▶  ViewModel  ──suspend calls─�
         └────── StateFlow<UiState> ────┘           FakeMediaRepository / NetworkMediaRepository
                                                                       │
                                          Retrofit APIs: Jellyfin · qBittorrent · Jellyseerr · Radarr/Sonarr · Prowlarr · MediaDL
+
+UpcomingScreen ─▶ UpcomingViewModel ─▶ ScheduleRepository ─▶ TvMazeApi (public, https://api.tvmaze.com)
+SavedScreen    ─▶ SavedViewModel    ─▶ SavedRepository ─▶ Room (SavedTitleDao)
+                                    └▶ PreferencesRepository ─▶ DataStore
 ```
 
 - **Model / data layer.** `data/model` holds plain data classes (`Title`,
@@ -91,6 +105,8 @@ Navigation Compose with string routes, defined in `ui/navigation/Routes.kt`.
 | `downloads` | Downloads (tab) | — |
 | `search` | Find new (tab) | — |
 | `sources/{type}/{tmdbId}?title={title}` | Trackers / Online sources | `type` (String), `tmdbId` (**Int**), optional `title` |
+| `saved` | Saved for later (tab) | — |
+| `upcoming` | New episodes (TVmaze) | — |
 | `server` | Server (tab) | — |
 
 - Arguments are declared with `navArgument(...)`. Each ViewModel reads them from
@@ -101,18 +117,50 @@ Navigation Compose with string routes, defined in `ui/navigation/Routes.kt`.
   `popUpTo(start) { saveState = true }`, `launchSingleTop` and `restoreState`, so
   every tab keeps its own state.
 
+## Requirements 8 & 9: where to look
+
+**Requirement 8 — REST API with Retrofit (TVmaze, public, no key)**
+
+| Item | Code |
+| --- | --- |
+| Retrofit interface | `data/network/TvMazeApi.kt` (`GET singlesearch/shows` with `embed[]`) |
+| JSON → Kotlin data classes | `data/network/dto/TvMazeDto.kt` (`@Serializable`, mapped to `ShowSchedule`) |
+| Repository | `data/ScheduleRepository.kt` (library series + TVmaze, up to 4 parallel requests, retry on HTTP 429) |
+| Coroutines | `suspend` API calls, `async`/`awaitAll`, `Semaphore`, `viewModelScope.launch` |
+| ViewModel + StateFlow | `ui/upcoming/UpcomingViewModel.kt` → `StateFlow<UiState<List<ShowSchedule>>>` |
+| Compose UI, 4 states | `ui/upcoming/UpcomingScreen.kt`: Loading (spinner), Success, Error (+ *Retry*), Empty |
+| Coil | `ui/components/Poster.kt` (`AsyncImage`, disk cache in `HomepanelApplication`) |
+
+**Requirement 9 — Room & DataStore**
+
+| Item | Code |
+| --- | --- |
+| Entity | `data/local/SavedTitle.kt` (table `saved_titles`, unique index on `tmdb_id + type`) |
+| DAO | `data/local/SavedTitleDao.kt` |
+| Database | `data/local/HomepanelDatabase.kt` (`homepanel.db`) |
+| Create | ☆ in Search → `SearchViewModel.toggleSaved` → `SavedRepository.save` |
+| Read | `observeAll(): Flow<List<SavedTitle>>` → `SavedViewModel.state` (`stateIn`) → *Saved* tab |
+| Update | ✎ → note and "watched" (`SavedViewModel.saveEdit`), or tap the ✓/○ mark |
+| Delete | *Delete* in the edit dialog, *Undo* in the snackbar restores the same row |
+| Repository | `data/SavedRepository.kt` (`RoomSavedRepository`) |
+| DataStore | `data/local/PreferencesRepository.kt`: sort order (Newest / A–Z / Year) and "hide watched" |
+
+**Tests:** `app/src/test/.../TvMazeMappingTest.kt` (JSON parsing, JVM) and
+`app/src/androidTest/.../SavedTitleDaoTest.kt` (Room CRUD on a device, in-memory database).
+
 ## Tech stack
 
 Kotlin 2.1, Jetpack Compose (BOM 2024.11), Material 3, Navigation Compose 2.8,
 Lifecycle ViewModel / StateFlow, Kotlin coroutines, Retrofit 2.11 + OkHttp 4.12 +
-kotlinx.serialization, Coil 2.7 (posters with a disk cache), AppCompat
-per-app language. Built with AGP 8.7.3 and Gradle 8.11.1; minSdk 24,
+kotlinx.serialization, Coil 2.7 (posters with a disk cache), Room 2.6.1 (KSP),
+DataStore Preferences 1.1.1, AppCompat per-app language. Built with AGP 8.7.3 and Gradle 8.11.1; minSdk 24,
 targetSdk 35.
 
 ## How to run
 
 1. Open the project in Android Studio and press **Run**. Without keys, the app
-   starts in demo mode.
+   starts in demo mode. *New episodes* (TVmaze) and *Saved* (Room) work in demo
+   mode too: TVmaze is a public API, and the database is on the phone.
 2. To connect to a real server, add the following to `local.properties`. This
    file is in `.gitignore` and never committed.
 
