@@ -8,6 +8,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.homepanel.HomepanelApplication
 import com.example.homepanel.R
 import com.example.homepanel.data.SavedRepository
+import com.example.homepanel.data.local.PreferencesRepository
+import com.example.homepanel.data.local.SavedPrefs
+import com.example.homepanel.data.local.SavedSort
 import com.example.homepanel.data.local.SavedTitle
 import com.example.homepanel.ui.UiState
 import com.example.homepanel.ui.UserMessage
@@ -22,7 +25,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class SavedUiState(
-    val titles: UiState<List<SavedTitle>> = UiState.Loading,
+    val titles: UiState<List<SavedTitle>> = UiState.Loading,   // уже отсортированные и отфильтрованные
+    val total: Int = 0,                                         // сколько всего в базе
+    val prefs: SavedPrefs = SavedPrefs(),
     val editing: SavedTitle? = null,       // открыт диалог изменения
     val message: UserMessage? = null,
     val deleted: SavedTitle? = null,       // только что удалили — snackbar с «Отменить»
@@ -30,7 +35,10 @@ data class SavedUiState(
 
 // Room отдаёт Flow: любое изменение таблицы (здесь или в поиске) сразу приходит сюда,
 // stateIn превращает его в StateFlow для экрана
-class SavedViewModel(private val repository: SavedRepository) : ViewModel() {
+class SavedViewModel(
+    private val repository: SavedRepository,
+    private val preferences: PreferencesRepository,
+) : ViewModel() {
 
     private val editing = MutableStateFlow<SavedTitle?>(null)
     private val message = MutableStateFlow<UserMessage?>(null)
@@ -40,8 +48,20 @@ class SavedViewModel(private val repository: SavedRepository) : ViewModel() {
         .map<List<SavedTitle>, UiState<List<SavedTitle>>> { UiState.Success(it) }
         .catch { emit(UiState.Error(R.string.error_load_saved)) }
 
-    val state: StateFlow<SavedUiState> = combine(titles, editing, message, deleted) { list, edit, msg, del ->
-        SavedUiState(list, edit, msg, del)
+    // Список из Room + настройки из DataStore: поменялось любое — экран пересчитывается
+    val state: StateFlow<SavedUiState> = combine(titles, preferences.savedPrefs, editing, message, deleted) {
+            list, prefs, edit, msg, del ->
+        SavedUiState(
+            titles = when (list) {
+                is UiState.Success -> UiState.Success(list.data.arrange(prefs))
+                else -> list
+            },
+            total = (list as? UiState.Success)?.data?.size ?: 0,
+            prefs = prefs,
+            editing = edit,
+            message = msg,
+            deleted = del,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SavedUiState())
 
     fun startEdit(item: SavedTitle) {
@@ -85,15 +105,33 @@ class SavedViewModel(private val repository: SavedRepository) : ViewModel() {
         deleted.value = null
     }
 
+    // Настройки пишем в DataStore — после перезапуска приложения они останутся
+    fun onSortChange(sort: SavedSort) {
+        viewModelScope.launch { preferences.setSavedSort(sort) }
+    }
+
+    fun onHideWatchedChange(hide: Boolean) {
+        viewModelScope.launch { preferences.setHideWatched(hide) }
+    }
+
     fun onMessageShown() {
         message.value = null
+    }
+
+    private fun List<SavedTitle>.arrange(prefs: SavedPrefs): List<SavedTitle> {
+        val visible = if (prefs.hideWatched) filterNot { it.watched } else this
+        return when (prefs.sort) {
+            SavedSort.NEWEST -> visible.sortedByDescending { it.addedAt }
+            SavedSort.NAME -> visible.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+            SavedSort.YEAR -> visible.sortedWith(compareByDescending<SavedTitle> { it.year ?: 0 }.thenBy { it.name })
+        }
     }
 
     companion object {
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as HomepanelApplication
-                SavedViewModel(app.container.savedRepository)
+                SavedViewModel(app.container.savedRepository, app.container.preferencesRepository)
             }
         }
     }

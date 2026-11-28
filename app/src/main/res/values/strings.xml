@@ -196,4 +196,10 @@
     <string name="action_delete">Delete</string>
     <string name="action_undo">Undo</string>
     <string name="msg_deleted">✗ %1$s — deleted</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_name">A–Z</string>
+    <string name="sort_year">Year</string>
+    <string name="saved_hide_watched">hide watched</string>
+    <string name="saved_all_hidden">All saved titles are watched</string>
+    <string name="saved_all_hidden_hint">Turn off “hide watched” to see them</string>
 </resources>

@@ -189,4 +189,10 @@
     <string name="action_delete">Жою</string>
     <string name="action_undo">Болдырмау</string>
     <string name="msg_deleted">✗ %1$s — жойылды</string>
+    <string name="sort_newest">Жаңа</string>
+    <string name="sort_name">А–Я</string>
+    <string name="sort_year">Жыл</string>
+    <string name="saved_hide_watched">көрілгенді жасыру</string>
+    <string name="saved_all_hidden">Сақталғанның бәрі көрілген</string>
+    <string name="saved_all_hidden_hint">Оларды көру үшін «көрілгенді жасыру» өшіріңіз</string>
 </resources>

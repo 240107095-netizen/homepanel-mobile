@@ -195,4 +195,10 @@
     <string name="action_delete">Удалить</string>
     <string name="action_undo">Отменить</string>
     <string name="msg_deleted">✗ %1$s — удалено</string>
+    <string name="sort_newest">Новые</string>
+    <string name="sort_name">А–Я</string>
+    <string name="sort_year">Год</string>
+    <string name="saved_hide_watched">скрыть просмотренные</string>
+    <string name="saved_all_hidden">Всё сохранённое уже просмотрено</string>
+    <string name="saved_all_hidden_hint">Выключите «скрыть просмотренные», чтобы их увидеть</string>
 </resources>

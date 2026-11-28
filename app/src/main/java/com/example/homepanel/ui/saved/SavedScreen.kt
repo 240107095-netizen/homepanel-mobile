@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.homepanel.R
+import com.example.homepanel.data.local.SavedPrefs
+import com.example.homepanel.data.local.SavedSort
 import com.example.homepanel.data.local.SavedTitle
 import com.example.homepanel.data.model.TitleType
 import com.example.homepanel.ui.UiState
@@ -53,6 +55,7 @@ import com.example.homepanel.ui.components.StatusBadge
 import com.example.homepanel.ui.components.StatusKind
 import com.example.homepanel.ui.components.TopStatusBar
 import com.example.homepanel.ui.components.TuiButton
+import com.example.homepanel.ui.components.TuiTabs
 import com.example.homepanel.ui.theme.HomepanelTheme
 import com.example.homepanel.ui.theme.tui
 
@@ -89,6 +92,8 @@ fun SavedScreen(
             onOpen = onOpenSources,
             onEdit = viewModel::startEdit,
             onToggleWatched = viewModel::toggleWatched,
+            onSortChange = viewModel::onSortChange,
+            onHideWatchedChange = viewModel::onHideWatchedChange,
         )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
@@ -110,10 +115,12 @@ fun SavedContent(
     modifier: Modifier = Modifier,
     onEdit: (SavedTitle) -> Unit = {},
     onToggleWatched: (SavedTitle) -> Unit = {},
+    onSortChange: (SavedSort) -> Unit = {},
+    onHideWatchedChange: (Boolean) -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.saved_title)) {
-            val count = (state.titles as? UiState.Success)?.data?.size ?: 0
+            val count = state.total
             if (count > 0) {
                 Text(
                     pluralStringResource(R.plurals.library_count, count, count),
@@ -122,12 +129,17 @@ fun SavedContent(
                 )
             }
         }
+        if (state.total > 0) {
+            SavedControls(state.prefs, onSortChange, onHideWatchedChange)
+        }
         when (val titles = state.titles) {
             UiState.Loading -> LoadingState()
             // База локальная, ошибка почти невозможна; «Повторить» — просто заново открыть вкладку
             is UiState.Error -> ErrorState(stringResource(titles.message), onRetry = {})
-            is UiState.Success -> if (titles.data.isEmpty()) {
+            is UiState.Success -> if (state.total == 0) {
                 EmptyState(stringResource(R.string.saved_empty), hint = stringResource(R.string.saved_empty_hint))
+            } else if (titles.data.isEmpty()) {
+                EmptyState(stringResource(R.string.saved_all_hidden), hint = stringResource(R.string.saved_all_hidden_hint))
             } else {
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(titles.data, key = { it.id }) { item ->
@@ -141,6 +153,36 @@ fun SavedContent(
                 }
             }
         }
+    }
+}
+
+// Порядок и «скрыть просмотренные» — хранятся в DataStore
+@Composable
+private fun SavedControls(
+    prefs: SavedPrefs,
+    onSortChange: (SavedSort) -> Unit,
+    onHideWatchedChange: (Boolean) -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        TuiTabs(
+            labels = listOf(
+                stringResource(R.string.sort_newest),
+                stringResource(R.string.sort_name),
+                stringResource(R.string.sort_year),
+            ),
+            selected = prefs.sort.ordinal,
+            onSelect = { onSortChange(SavedSort.entries[it]) },
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            (if (prefs.hideWatched) "[✓] " else "[ ] ") + stringResource(R.string.saved_hide_watched),
+            style = MaterialTheme.typography.labelLarge,
+            color = if (prefs.hideWatched) MaterialTheme.colorScheme.primary else MaterialTheme.tui.muted,
+            maxLines = 1,
+            modifier = Modifier
+                .clickable { onHideWatchedChange(!prefs.hideWatched) }
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+        )
     }
 }
 
@@ -256,7 +298,8 @@ private fun SavedPreview() {
     HomepanelTheme {
         SavedContent(
             SavedUiState(
-                UiState.Success(
+                total = 2,
+                titles = UiState.Success(
                     listOf(
                         SavedTitle(1, 90228, TitleType.SERIES, "Дюна: Пророчество", 2024, null, note = "посмотреть с братом"),
                         SavedTitle(2, 438631, TitleType.MOVIE, "Дюна", 2021, null, watched = true),
@@ -271,5 +314,5 @@ private fun SavedPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
 private fun SavedEmptyPreview() {
-    HomepanelTheme { SavedContent(SavedUiState(UiState.Success(emptyList())), onOpen = {}) }
+    HomepanelTheme { SavedContent(SavedUiState(titles = UiState.Success(emptyList())), onOpen = {}) }
 }

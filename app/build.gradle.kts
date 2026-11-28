@@ -96,6 +96,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    // Настройки пользователя (сортировка сохранённого)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Постеры
     implementation("io.coil-kt:coil-compose:2.7.0")
     debugImplementation("androidx.compose.ui:ui-tooling")

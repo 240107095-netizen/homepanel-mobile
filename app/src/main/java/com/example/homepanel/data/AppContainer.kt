@@ -2,7 +2,9 @@ package com.example.homepanel.data
 
 import android.content.Context
 import com.example.homepanel.BuildConfig
+import com.example.homepanel.data.local.DataStorePreferencesRepository
 import com.example.homepanel.data.local.HomepanelDatabase
+import com.example.homepanel.data.local.PreferencesRepository
 import com.example.homepanel.data.network.ApiKeyInterceptor
 import com.example.homepanel.data.network.ArrGrabber
 import com.example.homepanel.data.network.JellyfinApi
@@ -30,6 +32,7 @@ interface AppContainer {
     val repository: MediaRepository
     val scheduleRepository: ScheduleRepository
     val savedRepository: SavedRepository
+    val preferencesRepository: PreferencesRepository
     val httpClient: OkHttpClient
 }
 
@@ -107,6 +110,10 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     // Локальные данные: Room-база в памяти телефона
     override val savedRepository: SavedRepository by lazy {
         RoomSavedRepository(HomepanelDatabase.get(context).savedTitleDao())
+    }
+
+    override val preferencesRepository: PreferencesRepository by lazy {
+        DataStorePreferencesRepository(context)
     }
 
     // Публичный API: работает и без домашнего сервера (в демо-режиме сериалы берутся из демо-библиотеки)
