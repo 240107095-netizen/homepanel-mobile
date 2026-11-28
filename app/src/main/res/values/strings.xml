@@ -187,4 +187,10 @@
     <string name="saved_empty_hint">Tap ☆ next to a title in Search. Saved titles stay on the phone even after restarting the app</string>
     <string name="status_to_watch">to watch</string>
     <string name="error_load_saved">Could not read saved titles</string>
+    <string name="saved_edit_title">Edit “%1$s”</string>
+    <string name="saved_note">Note</string>
+    <string name="saved_note_hint">e.g. watch with my brother</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_save_changes">Save</string>
+    <string name="msg_updated">✎ %1$s — updated</string>
 </resources>

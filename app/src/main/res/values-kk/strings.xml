@@ -180,4 +180,10 @@
     <string name="saved_empty_hint">Іздеуде тайтлдың жанындағы ☆ басыңыз. Сақталғандар телефонда қалады, қайта іске қосқаннан кейін де</string>
     <string name="status_to_watch">көрілмеген</string>
     <string name="error_load_saved">Сақталғандарды оқу мүмкін болмады</string>
+    <string name="saved_edit_title">«%1$s» өзгерту</string>
+    <string name="saved_note">Жазба</string>
+    <string name="saved_note_hint">мысалы: інімен бірге көру</string>
+    <string name="action_edit">Өзгерту</string>
+    <string name="action_save_changes">Сақтау</string>
+    <string name="msg_updated">✎ %1$s — өзгертілді</string>
 </resources>

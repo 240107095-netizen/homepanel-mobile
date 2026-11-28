@@ -186,4 +186,10 @@
     <string name="saved_empty_hint">Нажмите ☆ у тайтла в поиске. Сохранённое хранится на телефоне и остаётся после перезапуска</string>
     <string name="status_to_watch">не смотрели</string>
     <string name="error_load_saved">Не удалось прочитать сохранённое</string>
+    <string name="saved_edit_title">Изменить «%1$s»</string>
+    <string name="saved_note">Заметка</string>
+    <string name="saved_note_hint">например: посмотреть с братом</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_save_changes">Сохранить</string>
+    <string name="msg_updated">✎ %1$s — изменено</string>
 </resources>
