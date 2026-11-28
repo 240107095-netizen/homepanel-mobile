@@ -28,6 +28,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "JELLYFIN_URL", secret("jellyfin.url"))
         buildConfigField("String", "JELLYFIN_KEY", secret("jellyfin.key"))
@@ -102,4 +103,9 @@ dependencies {
     // Постеры
     implementation("io.coil-kt:coil-compose:2.7.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    // Тесты: JVM (разбор ответа TVmaze) и на устройстве (Room DAO)
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
 }
