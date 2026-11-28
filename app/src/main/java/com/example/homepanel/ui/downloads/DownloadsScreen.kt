@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.homepanel.R
+import com.example.homepanel.data.model.JobStatus
+import com.example.homepanel.data.model.OnlineJob
 import com.example.homepanel.data.model.Torrent
 import com.example.homepanel.data.model.TorrentState
 import com.example.homepanel.ui.UiState
@@ -67,7 +69,13 @@ fun DownloadsScreen(
     }
 
     Box(modifier.fillMaxSize()) {
-        DownloadsContent(state, onToggle = viewModel::toggle, onRetry = viewModel::load, onRefresh = viewModel::pullRefresh)
+        DownloadsContent(
+            state,
+            onToggle = viewModel::toggle,
+            onRetry = viewModel::load,
+            onRefresh = viewModel::pullRefresh,
+            onRetryJob = viewModel::retryJob,
+        )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
 }
@@ -80,6 +88,7 @@ fun DownloadsContent(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
     onRefresh: () -> Unit = {},
+    onRetryJob: (OnlineJob) -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.downloads_title)) {
@@ -93,12 +102,20 @@ fun DownloadsContent(
         when (val torrents = state.torrents) {
             UiState.Loading -> LoadingState()
             is UiState.Error -> ErrorState(stringResource(torrents.message), onRetry)
-            is UiState.Success -> if (torrents.data.isEmpty()) {
+            is UiState.Success -> if (torrents.data.isEmpty() && state.jobs.isEmpty()) {
                 EmptyState(stringResource(R.string.downloads_empty), hint = stringResource(R.string.downloads_empty_hint))
             } else {
                 PullToRefreshBox(state.isRefreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                     LazyColumn(Modifier.fillMaxSize()) {
-                        items(torrents.data, key = { it.hash }) { TorrentRow(it, onToggle = { onToggle(it) }) }
+                        // Две секции: торренты (qBittorrent) и онлайн-загрузки (MediaDL)
+                        if (torrents.data.isNotEmpty()) {
+                            item(key = "h-torrents") { SectionHeader("qBittorrent", torrents.data.size) }
+                            items(torrents.data, key = { it.hash }) { TorrentRow(it, onToggle = { onToggle(it) }) }
+                        }
+                        if (state.jobs.isNotEmpty()) {
+                            item(key = "h-jobs") { SectionHeader("MediaDL", state.jobs.size) }
+                            items(state.jobs, key = { "job-" + it.id }) { JobRow(it, onRetry = { onRetryJob(it) }) }
+                        }
                     }
                 }
             }
@@ -136,6 +153,66 @@ private fun TorrentRow(torrent: Torrent, onToggle: () -> Unit) {
                 TorrentState.PAUSED -> TuiButton(stringResource(R.string.action_resume), onToggle)
                 else -> {}
             }
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(name: String, count: Int) {
+    Text(
+        "── $name · $count",
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.tui.muted,
+        modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp),
+    )
+}
+
+// Задача MediaDL:
+//  Поднятие уровня в одиночку · S2 · AniLibria
+//  ████████▌         42%
+//  ▶ downloading · ep 5 of 13
+//  ✗ сайт не отдал серию 4                     [ Retry ]
+@Composable
+private fun JobRow(job: OnlineJob, onRetry: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        val head = buildList {
+            add(job.title)
+            if (!job.isFilm) add(stringResource(R.string.job_season, job.season))
+            if (job.dub.isNotEmpty()) add(job.dub)
+        }.joinToString(" · ")
+        Text(head, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        val kind = when (job.status) {
+            JobStatus.RUNNING -> StatusKind.ACTIVE
+            JobStatus.QUEUED -> StatusKind.WAIT
+            JobStatus.DONE -> StatusKind.OK
+            JobStatus.FAILED -> StatusKind.ERROR
+        }
+        TuiProgress(job.progress, color = kind.color(), modifier = Modifier.padding(vertical = 2.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            val (icon, label) = when (job.status) {
+                JobStatus.RUNNING -> "▶" to R.string.torrent_downloading
+                JobStatus.QUEUED -> "◷" to R.string.job_queued
+                JobStatus.DONE -> "✓" to R.string.torrent_done
+                JobStatus.FAILED -> "✗" to R.string.torrent_error
+            }
+            StatusBadge(icon, stringResource(label), kind)
+            Text(
+                if (job.isFilm || job.totalEpisodes == 0) "" else
+                    " · " + stringResource(R.string.job_episodes, job.doneEpisodes, job.totalEpisodes),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.tui.muted,
+                maxLines = 1,
+                modifier = Modifier.weight(1f),
+            )
+            if (job.status == JobStatus.FAILED) TuiButton(stringResource(R.string.retry), onRetry)
+        }
+        if (job.error.isNotEmpty()) {
+            Text(job.error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

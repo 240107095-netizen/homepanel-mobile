@@ -151,4 +151,8 @@
     <string name="online_default_voice">Default</string>
     <string name="msg_online_queued">▶ %1$s — queued in MediaDL</string>
     <string name="msg_online_failed">✗ MediaDL could not queue it</string>
+    <string name="job_queued">queued</string>
+    <string name="job_episodes">ep %1$d of %2$d</string>
+    <string name="job_season">S%1$d</string>
+    <string name="msg_job_retried">▶ %1$s — restarted</string>
 </resources>

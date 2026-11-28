@@ -144,4 +144,8 @@
     <string name="online_default_voice">Әдепкі</string>
     <string name="msg_online_queued">▶ %1$s — MediaDL кезегінде</string>
     <string name="msg_online_failed">✗ MediaDL кезекке қоя алмады</string>
+    <string name="job_queued">кезекте</string>
+    <string name="job_episodes">%2$d сериядан %1$d</string>
+    <string name="job_season">%1$d-маусым</string>
+    <string name="msg_job_retried">▶ %1$s — қайта іске қосылды</string>
 </resources>

@@ -8,12 +8,16 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.homepanel.HomepanelApplication
 import com.example.homepanel.R
 import com.example.homepanel.data.MediaRepository
+import com.example.homepanel.data.model.JobStatus
+import com.example.homepanel.data.model.OnlineJob
 import com.example.homepanel.data.model.Torrent
 import com.example.homepanel.data.model.TorrentState
 import com.example.homepanel.ui.UiState
 import com.example.homepanel.ui.toErrorMessage
 import com.example.homepanel.ui.UserMessage
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.channelFlow
@@ -28,6 +32,7 @@ data class DownloadsUiState(
     val message: UserMessage? = null,
     val stale: Boolean = false,  // связь пропала: показываем последние известные данные
     val isRefreshing: Boolean = false,
+    val jobs: List<OnlineJob> = emptyList(),  // онлайн-загрузки MediaDL
 ) {
     // Общая скорость для шапки
     val totalSpeed: Long
@@ -66,10 +71,22 @@ class DownloadsViewModel(private val repository: MediaRepository) : ViewModel() 
         }
     }
 
-    private suspend fun refresh() {
+    // Торренты и задачи MediaDL спрашиваем параллельно. MediaDL не ответил — оставляем
+    // его прошлый список, а экран строится по торрентам.
+    private suspend fun refresh() = coroutineScope {
+        val jobs = async {
+            try {
+                repository.getOnlineJobs()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
+        }
         try {
             val list = repository.getTorrents()
-            _state.update { it.copy(torrents = UiState.Success(list), stale = false) }
+            val online = jobs.await()
+            _state.update { it.copy(torrents = UiState.Success(list), stale = false, jobs = online ?: it.jobs) }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -98,6 +115,26 @@ class DownloadsViewModel(private val repository: MediaRepository) : ViewModel() 
                 showMessage(UserMessage(R.string.msg_action_failed))
             }
         }
+    }
+
+    // Перезапуск упавшей задачи: сразу показываем «в очереди», при отказе откатываем
+    fun retryJob(job: OnlineJob) {
+        replaceJob(job.copy(status = JobStatus.QUEUED, error = ""))
+        viewModelScope.launch {
+            try {
+                repository.retryOnlineJob(job.id)
+                showMessage(UserMessage(R.string.msg_job_retried, job.title))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                replaceJob(job)
+                showMessage(UserMessage(R.string.msg_action_failed))
+            }
+        }
+    }
+
+    private fun replaceJob(job: OnlineJob) {
+        _state.update { s -> s.copy(jobs = s.jobs.map { if (it.id == job.id) job else it }) }
     }
 
     fun onMessageShown() {
