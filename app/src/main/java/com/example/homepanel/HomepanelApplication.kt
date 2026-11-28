@@ -14,7 +14,7 @@ class HomepanelApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
-        container = DefaultAppContainer()
+        container = DefaultAppContainer(this)
     }
 
     override fun newImageLoader(): ImageLoader = ImageLoader.Builder(this)

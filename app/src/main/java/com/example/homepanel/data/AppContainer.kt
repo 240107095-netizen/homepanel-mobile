@@ -1,6 +1,8 @@
 package com.example.homepanel.data
 
+import android.content.Context
 import com.example.homepanel.BuildConfig
+import com.example.homepanel.data.local.HomepanelDatabase
 import com.example.homepanel.data.network.ApiKeyInterceptor
 import com.example.homepanel.data.network.ArrGrabber
 import com.example.homepanel.data.network.JellyfinApi
@@ -27,10 +29,12 @@ import java.util.concurrent.TimeUnit
 interface AppContainer {
     val repository: MediaRepository
     val scheduleRepository: ScheduleRepository
+    val savedRepository: SavedRepository
     val httpClient: OkHttpClient
 }
 
-class DefaultAppContainer : AppContainer {
+// context — для локальной базы (файл на телефоне)
+class DefaultAppContainer(private val context: Context) : AppContainer {
 
     // Ключей нет (local.properties пуст) — работаем на демо-данных
     private val hasServer = BuildConfig.JELLYFIN_URL.isNotBlank() && BuildConfig.JELLYFIN_KEY.isNotBlank()
@@ -98,6 +102,11 @@ class DefaultAppContainer : AppContainer {
                 mediaDl = retrofit(BuildConfig.MEDIADL_URL, slowClient).create(MediaDlApi::class.java),
             )
         }
+    }
+
+    // Локальные данные: Room-база в памяти телефона
+    override val savedRepository: SavedRepository by lazy {
+        RoomSavedRepository(HomepanelDatabase.get(context).savedTitleDao())
     }
 
     // Публичный API: работает и без домашнего сервера (в демо-режиме сериалы берутся из демо-библиотеки)
