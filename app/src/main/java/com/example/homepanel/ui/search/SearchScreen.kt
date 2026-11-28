@@ -23,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -78,6 +80,7 @@ fun SearchScreen(
             onRetry = viewModel::retry,
             onRequest = viewModel::askRequest,
             onOpen = onOpenSources,
+            onToggleSaved = viewModel::toggleSaved,
         )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
@@ -95,6 +98,7 @@ fun SearchContent(
     onRequest: (SearchResult) -> Unit,
     modifier: Modifier = Modifier,
     onOpen: (SearchResult) -> Unit = {},
+    onToggleSaved: (SearchResult) -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.search_title))
@@ -116,7 +120,13 @@ fun SearchContent(
             } else {
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(results.data, key = { "${it.type}-${it.tmdbId}" }) { item ->
-                        SearchResultRow(item, onRequest = { onRequest(item) }, onOpen = { onOpen(item) })
+                        SearchResultRow(
+                            item,
+                            saved = savedKey(item.type, item.tmdbId) in state.saved,
+                            onRequest = { onRequest(item) },
+                            onOpen = { onOpen(item) },
+                            onToggleSaved = { onToggleSaved(item) },
+                        )
                     }
                 }
             }
@@ -126,7 +136,13 @@ fun SearchContent(
 
 // Постер там, где выбирают: маленький постер + название, мета и статус
 @Composable
-private fun SearchResultRow(item: SearchResult, onRequest: () -> Unit, onOpen: () -> Unit) {
+private fun SearchResultRow(
+    item: SearchResult,
+    saved: Boolean,
+    onRequest: () -> Unit,
+    onOpen: () -> Unit,
+    onToggleSaved: () -> Unit,
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -153,6 +169,17 @@ private fun SearchResultRow(item: SearchResult, onRequest: () -> Unit, onOpen: (
             Text(stringResource(R.string.search_sources_hint), style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.tui.muted)
         }
+        // ☆ / ★ — сохранить на потом (в локальную базу)
+        val label = stringResource(if (saved) R.string.action_unsave else R.string.action_save)
+        Text(
+            if (saved) "★" else "☆",
+            style = MaterialTheme.typography.titleLarge,
+            color = if (saved) MaterialTheme.colorScheme.primary else MaterialTheme.tui.muted,
+            modifier = Modifier
+                .clickable(onClick = onToggleSaved)
+                .semantics { contentDescription = label }
+                .padding(12.dp),
+        )
     }
 }
 

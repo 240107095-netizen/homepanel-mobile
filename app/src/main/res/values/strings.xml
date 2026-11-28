@@ -177,4 +177,8 @@
         <item quantity="one">in %d day</item>
         <item quantity="other">in %d days</item>
     </plurals>
+    <string name="action_save">Save for later</string>
+    <string name="action_unsave">Remove from saved</string>
+    <string name="msg_saved">★ %1$s — saved</string>
+    <string name="msg_unsaved">☆ %1$s — removed from saved</string>
 </resources>

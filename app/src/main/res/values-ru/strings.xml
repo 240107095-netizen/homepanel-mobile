@@ -176,4 +176,8 @@
         <item quantity="many">через %d дней</item>
         <item quantity="other">через %d дня</item>
     </plurals>
+    <string name="action_save">Сохранить на потом</string>
+    <string name="action_unsave">Убрать из сохранённого</string>
+    <string name="msg_saved">★ %1$s — сохранено</string>
+    <string name="msg_unsaved">☆ %1$s — убрано из сохранённого</string>
 </resources>

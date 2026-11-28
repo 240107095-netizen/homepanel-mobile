@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.homepanel.HomepanelApplication
 import com.example.homepanel.R
 import com.example.homepanel.data.MediaRepository
+import com.example.homepanel.data.SavedRepository
 import com.example.homepanel.data.model.MediaStatus
 import com.example.homepanel.data.model.SearchResult
 import com.example.homepanel.ui.UiState
@@ -30,9 +31,17 @@ data class SearchUiState(
     val results: UiState<List<SearchResult>>? = null,  // null — ещё ничего не искали
     val confirm: SearchResult? = null,                 // открыт диалог «Запросить?»
     val message: UserMessage? = null,
+    val saved: Set<String> = emptySet(),               // что уже сохранено в базе: ключи savedKey()
 )
 
-class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
+// Ключ тайтла: у фильма и сериала TMDB id могут совпасть, поэтому тип в ключе
+fun savedKey(type: Any, tmdbId: Int) = "$type-$tmdbId"
+
+
+class SearchViewModel(
+    private val repository: MediaRepository,
+    private val savedRepository: SavedRepository,
+) : ViewModel() {
 
     private val _state = MutableStateFlow(SearchUiState())
 
@@ -42,6 +51,26 @@ class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
 
     init {
         observeQuery()
+        observeSaved()
+    }
+
+    // Звёздочки в результатах следят за базой: сохранили здесь или удалили на вкладке «Сохранённое» —
+    // Room присылает новый список, звёздочка меняется сама
+    private fun observeSaved() {
+        viewModelScope.launch {
+            savedRepository.observeSaved().collect { list ->
+                _state.update { s -> s.copy(saved = list.map { savedKey(it.type, it.tmdbId) }.toSet()) }
+            }
+        }
+    }
+
+    // ☆ — сохранить (Create), ★ — убрать
+    fun toggleSaved(item: SearchResult) {
+        val isSaved = savedKey(item.type, item.tmdbId) in _state.value.saved
+        viewModelScope.launch {
+            if (isSaved) savedRepository.unsave(item.tmdbId, item.type) else savedRepository.save(item)
+            _state.update { it.copy(message = UserMessage(if (isSaved) R.string.msg_unsaved else R.string.msg_saved, item.name)) }
+        }
     }
 
     // Ищем, когда пользователь перестал печатать на 400 мс.
@@ -118,7 +147,7 @@ class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as HomepanelApplication
-                SearchViewModel(app.container.repository)
+                SearchViewModel(app.container.repository, app.container.savedRepository)
             }
         }
     }

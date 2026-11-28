@@ -170,4 +170,8 @@
         <item quantity="one">%d күннен кейін</item>
         <item quantity="other">%d күннен кейін</item>
     </plurals>
+    <string name="action_save">Кейінге сақтау</string>
+    <string name="action_unsave">Сақталғандардан алу</string>
+    <string name="msg_saved">★ %1$s — сақталды</string>
+    <string name="msg_unsaved">☆ %1$s — сақталғандардан алынды</string>
 </resources>
