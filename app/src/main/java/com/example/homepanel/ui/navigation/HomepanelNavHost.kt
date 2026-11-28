@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.homepanel.ui.downloads.DownloadsScreen
 import com.example.homepanel.ui.library.LibraryScreen
+import com.example.homepanel.ui.saved.SavedScreen
 import com.example.homepanel.ui.search.SearchScreen
 import com.example.homepanel.ui.season.SeasonScreen
 import com.example.homepanel.ui.server.ServerScreen
@@ -105,6 +106,12 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
                 ),
             ) {
                 SourcesScreen(onBack = { navController.navigateUp() })
+            }
+            composable(Routes.SAVED) {
+                // Из сохранённого — сразу к источникам, как из поиска
+                SavedScreen(onOpenSources = { item ->
+                    navController.navigate(Routes.sources(item.type.name, item.tmdbId, item.name))
+                })
             }
             composable(Routes.SERVER) { ServerScreen() }
         }

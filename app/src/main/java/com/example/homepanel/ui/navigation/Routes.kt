@@ -9,6 +9,7 @@ object Routes {
     const val LIBRARY = "library"
     const val DOWNLOADS = "downloads"
     const val SEARCH = "search"
+    const val SAVED = "saved"
     const val SERVER = "server"
 
     // Новые серии сериалов из библиотеки (данные из публичного TVmaze)
@@ -39,5 +40,6 @@ enum class TopTab(val route: String, @StringRes val label: Int, val glyph: Strin
     LIBRARY(Routes.LIBRARY, R.string.tab_library, "≡"),
     DOWNLOADS(Routes.DOWNLOADS, R.string.tab_downloads, "↓"),
     SEARCH(Routes.SEARCH, R.string.tab_search, "/"),
+    SAVED(Routes.SAVED, R.string.tab_saved, "★"),
     SERVER(Routes.SERVER, R.string.tab_server, "◉"),
 }

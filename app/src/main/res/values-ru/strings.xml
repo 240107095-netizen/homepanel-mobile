@@ -180,4 +180,10 @@
     <string name="action_unsave">Убрать из сохранённого</string>
     <string name="msg_saved">★ %1$s — сохранено</string>
     <string name="msg_unsaved">☆ %1$s — убрано из сохранённого</string>
+    <string name="tab_saved">Сохранённое</string>
+    <string name="saved_title">Сохранённое</string>
+    <string name="saved_empty">Пока ничего не сохранено</string>
+    <string name="saved_empty_hint">Нажмите ☆ у тайтла в поиске. Сохранённое хранится на телефоне и остаётся после перезапуска</string>
+    <string name="status_to_watch">не смотрели</string>
+    <string name="error_load_saved">Не удалось прочитать сохранённое</string>
 </resources>

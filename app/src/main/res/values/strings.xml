@@ -181,4 +181,10 @@
     <string name="action_unsave">Remove from saved</string>
     <string name="msg_saved">★ %1$s — saved</string>
     <string name="msg_unsaved">☆ %1$s — removed from saved</string>
+    <string name="tab_saved">Saved</string>
+    <string name="saved_title">Saved for later</string>
+    <string name="saved_empty">Nothing saved yet</string>
+    <string name="saved_empty_hint">Tap ☆ next to a title in Search. Saved titles stay on the phone even after restarting the app</string>
+    <string name="status_to_watch">to watch</string>
+    <string name="error_load_saved">Could not read saved titles</string>
 </resources>

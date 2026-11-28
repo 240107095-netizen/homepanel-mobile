@@ -174,4 +174,10 @@
     <string name="action_unsave">Сақталғандардан алу</string>
     <string name="msg_saved">★ %1$s — сақталды</string>
     <string name="msg_unsaved">☆ %1$s — сақталғандардан алынды</string>
+    <string name="tab_saved">Сақталған</string>
+    <string name="saved_title">Сақталғандар</string>
+    <string name="saved_empty">Әзірге ештеңе сақталмаған</string>
+    <string name="saved_empty_hint">Іздеуде тайтлдың жанындағы ☆ басыңыз. Сақталғандар телефонда қалады, қайта іске қосқаннан кейін де</string>
+    <string name="status_to_watch">көрілмеген</string>
+    <string name="error_load_saved">Сақталғандарды оқу мүмкін болмады</string>
 </resources>
