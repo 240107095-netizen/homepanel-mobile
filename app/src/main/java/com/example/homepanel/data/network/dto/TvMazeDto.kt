@@ -45,10 +45,15 @@ data class TvMazeEpisode(
 private fun TvMazeEpisode.toModel(): AirEpisode? =
     number?.let { AirEpisode(season, it, name, airdate) }
 
-// today — «yyyy-MM-dd»: даты в ISO-формате можно сравнивать как строки
-fun TvMazeShow.toSchedule(title: Title, today: String): ShowSchedule {
+// serverSeasons — номер сезона → сколько серий лежит на сервере.
+// today — «yyyy-MM-dd»: даты в ISO-формате можно сравнивать как строки.
+fun TvMazeShow.toSchedule(title: Title, serverSeasons: Map<Int, Int>, today: String): ShowSchedule {
     val aired = embedded?.episodes.orEmpty()
         .filter { it.type == "regular" && it.number != null && it.airdate.isNotEmpty() && it.airdate <= today }
+    val airedBySeason = aired.groupBy { it.season }.mapValues { it.value.size }
+    val have = serverSeasons.filterKeys { it > 0 }   // сезон 0 в Jellyfin — спецвыпуски
+    val lastHave = have.keys.maxOrNull() ?: 0
+    val newer = airedBySeason.filterKeys { it > lastHave }
     return ShowSchedule(
         titleId = title.id,
         name = title.name,
@@ -61,8 +66,11 @@ fun TvMazeShow.toSchedule(title: Title, today: String): ShowSchedule {
             "To Be Determined", "In Development" -> ShowStatus.TBD
             else -> ShowStatus.UNKNOWN
         },
-        airedEpisodes = aired.size,
-        onServer = title.episodeCount,
+        airedEpisodes = have.keys.sumOf { airedBySeason[it] ?: 0 },
+        onServer = have.values.sum(),
+        missing = have.entries.sumOf { (season, count) -> ((airedBySeason[season] ?: 0) - count).coerceAtLeast(0) },
+        newSeasons = newer.keys.sorted(),
+        newSeasonEpisodes = newer.values.sum(),
         lastAired = aired.lastOrNull()?.toModel(),
         next = embedded?.nextepisode?.toModel(),
     )

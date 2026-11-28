@@ -50,6 +50,7 @@ class UpcomingViewModel(private val repository: ScheduleRepository) : ViewModel(
         // Сверху те, что отстают (больше пропущенных — выше), потом с известной датой (ближайшие выше),
         // потом идущие без даты, завершённые — в конце
         private val ORDER = compareByDescending<ShowSchedule> { it.missing }
+            .thenByDescending { it.newSeasonEpisodes }
             .thenBy { it.next == null }
             .thenBy { it.next?.airdate.orEmpty() }
             .thenBy { it.status == ShowStatus.ENDED }

@@ -38,7 +38,12 @@ class TvMazeScheduleRepository(
         // Все сериалы спрашиваем параллельно, но не больше 4 запросов сразу — у TVmaze лимит
         val gate = Semaphore(4)
         series.map { title ->
-            async { gate.withPermit { find(title) }?.toSchedule(title, today) }
+            async {
+                val show = gate.withPermit { find(title) } ?: return@async null
+                // Сколько серий каждого сезона уже лежит на сервере
+                val seasons = library.getSeasons(title.id).associate { it.number to it.episodeCount }
+                show.toSchedule(title, seasons, today)
+            }
         }.awaitAll().filterNotNull()
     }
 

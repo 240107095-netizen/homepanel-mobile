@@ -75,7 +75,7 @@ fun UpcomingContent(
                 Text(
                     stringResource(
                         R.string.upcoming_summary,
-                        state.data.count { it.missing > 0 },
+                        state.data.count { it.isBehind },
                         state.data.count { it.next != null },
                     ),
                     style = MaterialTheme.typography.labelMedium,
@@ -124,6 +124,16 @@ private fun ShowRow(show: ShowSchedule, onClick: () -> Unit) {
                 )
             } else if (show.airedEpisodes > 0) {
                 StatusBadge("✓", stringResource(R.string.upcoming_all_here, show.airedEpisodes), StatusKind.OK)
+            }
+            if (show.newSeasons.isNotEmpty()) {
+                val first = show.newSeasons.first()
+                val last = show.newSeasons.last()
+                val text = if (first == last) {
+                    stringResource(R.string.upcoming_new_season, first, show.newSeasonEpisodes)
+                } else {
+                    stringResource(R.string.upcoming_new_seasons, first, last, show.newSeasonEpisodes)
+                }
+                StatusBadge("▲", text, StatusKind.WAIT)
             }
             show.next?.let { ep ->
                 StatusBadge("▶", stringResource(R.string.upcoming_next, ep.code(), whenLabel(ep.airdate)), StatusKind.ACTIVE)
@@ -180,9 +190,11 @@ private fun UpcomingPreview() {
             UiState.Success(
                 listOf(
                     ShowSchedule("s1", "Киберпанк: Бегущие по краю", 2022, null, "Netflix", ShowStatus.TBD,
-                        airedEpisodes = 20, onServer = 10, lastAired = AirEpisode(2, 10, "", "2026-10-20"), next = null),
+                        airedEpisodes = 10, onServer = 2, missing = 8, newSeasons = listOf(2), newSeasonEpisodes = 10,
+                        lastAired = AirEpisode(2, 10, "", "2026-10-20"), next = null),
                     ShowSchedule("s3", "Шогун", 2024, null, "Hulu", ShowStatus.RUNNING,
-                        airedEpisodes = 10, onServer = 10, lastAired = AirEpisode(1, 10, "", "2024-04-23"),
+                        airedEpisodes = 10, onServer = 10, missing = 0, newSeasons = emptyList(), newSeasonEpisodes = 0,
+                        lastAired = AirEpisode(1, 10, "", "2024-04-23"),
                         next = AirEpisode(2, 1, "", "2026-12-04")),
                 ),
             ),

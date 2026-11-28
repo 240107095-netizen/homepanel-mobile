@@ -163,7 +163,7 @@
     <string name="show_ended">завершён</string>
     <string name="show_tbd">не решено</string>
     <string name="show_unknown">неизвестно</string>
-    <string name="upcoming_missing">вышло ещё %1$d · на сервере %2$d из %3$d</string>
+    <string name="upcoming_missing">не хватает %1$d · на сервере %2$d из %3$d</string>
     <string name="upcoming_all_here">все %1$d на сервере</string>
     <string name="upcoming_next">следующая %1$s · %2$s</string>
     <string name="upcoming_last">последняя %1$s · %2$s</string>
@@ -201,4 +201,6 @@
     <string name="saved_hide_watched">скрыть просмотренные</string>
     <string name="saved_all_hidden">Всё сохранённое уже просмотрено</string>
     <string name="saved_all_hidden_hint">Выключите «скрыть просмотренные», чтобы их увидеть</string>
+    <string name="upcoming_new_season">вышел сезон %1$d · серий: %2$d</string>
+    <string name="upcoming_new_seasons">вышли сезоны %1$d–%2$d · серий: %3$d</string>
 </resources>

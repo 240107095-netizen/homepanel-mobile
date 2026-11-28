@@ -7,7 +7,9 @@ import com.example.homepanel.data.network.dto.TvMazeShow
 import com.example.homepanel.data.network.dto.toSchedule
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 // JSON → data class → модель экрана, без сети: кусок настоящего ответа TVmaze
@@ -40,16 +42,43 @@ class TvMazeMappingTest {
         episodeCount = 2, unplayedCount = 0, posterUrl = null,
     )
 
-    private fun schedule() = json.decodeFromString<TvMazeShow>(response).toSchedule(title, today = "2026-11-28")
+    // На сервере только 1-й сезон: 2 серии
+    private fun schedule(server: Map<Int, Int> = mapOf(1 to 2)) =
+        json.decodeFromString<TvMazeShow>(response).toSchedule(title, server, today = "2026-11-28")
 
     @Test
     fun countsOnlyAiredRegularEpisodes() {
         val s = schedule()
-        // 4 обычные серии вышли; спецвыпуск и серия из будущего не считаются
-        assertEquals(4, s.airedEpisodes)
-        assertEquals(2, s.missing)
+        // В 1-м сезоне 2 обычные серии, спецвыпуск не считается; обе на сервере
+        assertEquals(2, s.airedEpisodes)
+        assertEquals(0, s.missing)
         assertEquals(2, s.lastAired?.season)
         assertEquals(2, s.lastAired?.number)
+    }
+
+    @Test
+    fun laterSeasonIsReportedSeparately() {
+        val s = schedule()
+        // Из 2-го сезона вышли 2 серии, третья — в будущем
+        assertEquals(listOf(2), s.newSeasons)
+        assertEquals(2, s.newSeasonEpisodes)
+        assertTrue(s.isBehind)
+    }
+
+    @Test
+    fun missingCountedInsideSeasonsOnServer() {
+        val s = schedule(server = mapOf(1 to 1))
+        assertEquals(1, s.missing)
+        assertEquals(1, s.onServer)
+    }
+
+    @Test
+    fun earlierSeasonsNotOnServerAreIgnored() {
+        // Скачан только 2-й сезон целиком (вышедшие 2 серии) — 1-й не качали, это не «отставание»
+        val s = schedule(server = mapOf(2 to 2))
+        assertEquals(0, s.missing)
+        assertTrue(s.newSeasons.isEmpty())
+        assertFalse(s.isBehind)
     }
 
     @Test
@@ -63,16 +92,9 @@ class TvMazeMappingTest {
     }
 
     @Test
-    fun nothingMissingWhenServerHasMore() {
-        val s = json.decodeFromString<TvMazeShow>(response)
-            .toSchedule(title.copy(episodeCount = 10), today = "2026-11-28")
-        assertEquals(0, s.missing)
-    }
-
-    @Test
     fun showWithoutEmbedsStillParses() {
         val s = json.decodeFromString<TvMazeShow>("""{"id": 1, "name": "X", "status": "Ended"}""")
-            .toSchedule(title, today = "2026-11-28")
+            .toSchedule(title, mapOf(1 to 2), today = "2026-11-28")
         assertEquals(ShowStatus.ENDED, s.status)
         assertEquals(0, s.airedEpisodes)
         assertNull(s.next)

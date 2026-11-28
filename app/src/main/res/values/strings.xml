@@ -166,7 +166,7 @@
     <string name="show_ended">ended</string>
     <string name="show_tbd">undecided</string>
     <string name="show_unknown">unknown</string>
-    <string name="upcoming_missing">%1$d new · server has %2$d of %3$d</string>
+    <string name="upcoming_missing">%1$d missing · server has %2$d of %3$d</string>
     <string name="upcoming_all_here">all %1$d on the server</string>
     <string name="upcoming_next">next %1$s · %2$s</string>
     <string name="upcoming_last">last %1$s · %2$s</string>
@@ -202,4 +202,6 @@
     <string name="saved_hide_watched">hide watched</string>
     <string name="saved_all_hidden">All saved titles are watched</string>
     <string name="saved_all_hidden_hint">Turn off “hide watched” to see them</string>
+    <string name="upcoming_new_season">season %1$d is out · %2$d ep.</string>
+    <string name="upcoming_new_seasons">seasons %1$d–%2$d are out · %3$d ep.</string>
 </resources>

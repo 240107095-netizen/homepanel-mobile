@@ -34,8 +34,10 @@ server.
   (episodes done, errors, *Retry* for a failed job).
 - **New episodes (public API).** For every series in the library the app asks
   [TVmaze](https://www.tvmaze.com/api) how many episodes have aired and when the
-  next one comes out, and compares it with what is on the server:
-  `⚠ 10 new · server has 10 of 20`, `▶ next S03E01 · in 6 days`. Posters come
+  next one comes out, and compares it with what is on the server season by
+  season: `⚠ 8 missing · server has 2 of 10`, `▲ season 2 is out · 10 ep.`,
+  `▶ next S03E01 · in 6 days`. Earlier seasons you never downloaded are not
+  counted as missing. Posters come
   from TVmaze through Coil. Opened from the Library (`new episodes ▸`).
 - **Saved for later (local database).** Tap ☆ next to a search result to save it.
   The *Saved* tab lists saved titles from a Room database: add a note, mark as
