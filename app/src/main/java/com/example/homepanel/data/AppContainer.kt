@@ -13,6 +13,7 @@ import com.example.homepanel.data.network.RadarrLibraryApi
 import com.example.homepanel.data.network.SonarrApi
 import com.example.homepanel.data.network.RadarrApi
 import com.example.homepanel.data.network.SeerrApi
+import com.example.homepanel.data.network.TvMazeApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit
 // ViewModel получают репозиторий отсюда, а не создают его сами.
 interface AppContainer {
     val repository: MediaRepository
+    val scheduleRepository: ScheduleRepository
     val httpClient: OkHttpClient
 }
 
@@ -96,5 +98,13 @@ class DefaultAppContainer : AppContainer {
                 mediaDl = retrofit(BuildConfig.MEDIADL_URL, slowClient).create(MediaDlApi::class.java),
             )
         }
+    }
+
+    // Публичный API: работает и без домашнего сервера (в демо-режиме сериалы берутся из демо-библиотеки)
+    override val scheduleRepository: ScheduleRepository by lazy {
+        TvMazeScheduleRepository(
+            library = repository,
+            tvMaze = retrofit(TvMazeApi.BASE_URL).create(TvMazeApi::class.java),
+        )
     }
 }
