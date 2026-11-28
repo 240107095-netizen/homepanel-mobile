@@ -11,6 +11,9 @@ object Routes {
     const val SEARCH = "search"
     const val SERVER = "server"
 
+    // Новые серии сериалов из библиотеки (данные из публичного TVmaze)
+    const val UPCOMING = "upcoming"
+
     // Экран тайтла: id из Jellyfin передаётся аргументом маршрута
     const val ARG_ITEM_ID = "itemId"
     const val TITLE = "title/{$ARG_ITEM_ID}"

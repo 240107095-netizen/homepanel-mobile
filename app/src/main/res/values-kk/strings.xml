@@ -148,4 +148,26 @@
     <string name="job_episodes">%2$d сериядан %1$d</string>
     <string name="job_season">%1$d-маусым</string>
     <string name="msg_job_retried">▶ %1$s — қайта іске қосылды</string>
+    <string name="upcoming_title">Жаңа сериялар</string>
+    <string name="upcoming_open">жаңа сериялар ▸</string>
+    <string name="upcoming_loading">TVmaze-тен сериалдар туралы сұрап жатырмын…</string>
+    <string name="upcoming_empty">Тексеретін сериал жоқ</string>
+    <string name="upcoming_empty_hint">Кітапханадағы сериалдар TVmaze-тен атауы бойынша ізделеді</string>
+    <string name="error_tvmaze">TVmaze қолжетімсіз. Интернетті тексеріңіз</string>
+    <string name="error_load_upcoming">Жаңа серияларды тексеру мүмкін болмады</string>
+    <string name="show_running">жалғасуда</string>
+    <string name="show_ended">аяқталды</string>
+    <string name="show_tbd">шешілмеген</string>
+    <string name="show_unknown">белгісіз</string>
+    <string name="upcoming_missing">тағы %1$d шықты · серверде %3$d-тен %2$d</string>
+    <string name="upcoming_all_here">барлық %1$d серверде</string>
+    <string name="upcoming_next">келесі %1$s · %2$s</string>
+    <string name="upcoming_last">соңғы %1$s · %2$s</string>
+    <string name="upcoming_today">бүгін</string>
+    <string name="upcoming_tomorrow">ертең</string>
+    <string name="upcoming_summary">артта: %1$d · күні белгілі: %2$d</string>
+    <plurals name="upcoming_in_days">
+        <item quantity="one">%d күннен кейін</item>
+        <item quantity="other">%d күннен кейін</item>
+    </plurals>
 </resources>

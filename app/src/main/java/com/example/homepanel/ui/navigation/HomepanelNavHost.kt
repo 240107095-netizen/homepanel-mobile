@@ -31,6 +31,7 @@ import com.example.homepanel.ui.server.ServerScreen
 import com.example.homepanel.ui.sources.SourcesScreen
 import com.example.homepanel.ui.theme.tui
 import com.example.homepanel.ui.title.TitleScreen
+import com.example.homepanel.ui.upcoming.UpcomingScreen
 
 // Корень интерфейса: Scaffold с нижней панелью и NavHost со всеми экранами
 @Composable
@@ -56,7 +57,16 @@ fun HomepanelApp(navController: NavHostController = rememberNavController()) {
             modifier = Modifier.padding(padding),
         ) {
             composable(Routes.LIBRARY) {
-                LibraryScreen(onTitleClick = { id -> navController.navigate(Routes.title(id)) })
+                LibraryScreen(
+                    onTitleClick = { id -> navController.navigate(Routes.title(id)) },
+                    onOpenUpcoming = { navController.navigate(Routes.UPCOMING) },
+                )
+            }
+            composable(Routes.UPCOMING) {
+                UpcomingScreen(
+                    onBack = { navController.navigateUp() },
+                    onShowClick = { id -> navController.navigate(Routes.title(id)) },
+                )
             }
             composable(
                 route = Routes.TITLE,

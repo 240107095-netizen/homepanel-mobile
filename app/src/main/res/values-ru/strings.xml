@@ -152,4 +152,28 @@
     <string name="job_episodes">серий %1$d из %2$d</string>
     <string name="job_season">сезон %1$d</string>
     <string name="msg_job_retried">▶ %1$s — перезапущено</string>
+    <string name="upcoming_title">Новые серии</string>
+    <string name="upcoming_open">новые серии ▸</string>
+    <string name="upcoming_loading">Спрашиваю TVmaze о сериалах…</string>
+    <string name="upcoming_empty">Нечего проверять</string>
+    <string name="upcoming_empty_hint">Сериалы из библиотеки ищутся на TVmaze по названию</string>
+    <string name="error_tvmaze">TVmaze недоступен. Проверьте интернет</string>
+    <string name="error_load_upcoming">Не удалось проверить новые серии</string>
+    <string name="show_running">выходит</string>
+    <string name="show_ended">завершён</string>
+    <string name="show_tbd">не решено</string>
+    <string name="show_unknown">неизвестно</string>
+    <string name="upcoming_missing">вышло ещё %1$d · на сервере %2$d из %3$d</string>
+    <string name="upcoming_all_here">все %1$d на сервере</string>
+    <string name="upcoming_next">следующая %1$s · %2$s</string>
+    <string name="upcoming_last">последняя %1$s · %2$s</string>
+    <string name="upcoming_today">сегодня</string>
+    <string name="upcoming_tomorrow">завтра</string>
+    <string name="upcoming_summary">отстают: %1$d · с датой: %2$d</string>
+    <plurals name="upcoming_in_days">
+        <item quantity="one">через %d день</item>
+        <item quantity="few">через %d дня</item>
+        <item quantity="many">через %d дней</item>
+        <item quantity="other">через %d дня</item>
+    </plurals>
 </resources>

@@ -1,6 +1,9 @@
 package com.example.homepanel.ui.library
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,6 +15,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +41,7 @@ import com.example.homepanel.ui.PreviewData
 fun LibraryScreen(
     onTitleClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenUpcoming: () -> Unit = {},
     viewModel: LibraryViewModel = viewModel(factory = LibraryViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -48,6 +53,7 @@ fun LibraryScreen(
         onRefresh = viewModel::refresh,
         onTitleClick = onTitleClick,
         modifier = modifier,
+        onOpenUpcoming = onOpenUpcoming,
     )
 }
 
@@ -62,6 +68,7 @@ fun LibraryContent(
     onTitleClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     onRefresh: () -> Unit = {},
+    onOpenUpcoming: () -> Unit = {},
 ) {
     Column(modifier.fillMaxSize()) {
         TopStatusBar(title = stringResource(R.string.library_title)) {
@@ -81,16 +88,28 @@ fun LibraryContent(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp),
         )
-        TuiTabs(
-            labels = listOf(
-                stringResource(R.string.filter_all),
-                stringResource(R.string.filter_movies),
-                stringResource(R.string.filter_series),
-            ),
-            selected = state.filter.ordinal,
-            onSelect = { onFilterChange(LibraryFilter.entries[it]) },
-            modifier = Modifier.padding(vertical = 4.dp),
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TuiTabs(
+                labels = listOf(
+                    stringResource(R.string.filter_all),
+                    stringResource(R.string.filter_movies),
+                    stringResource(R.string.filter_series),
+                ),
+                selected = state.filter.ordinal,
+                onSelect = { onFilterChange(LibraryFilter.entries[it]) },
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
+            Spacer(Modifier.weight(1f))
+            // Вход на экран новых серий (TVmaze)
+            Text(
+                stringResource(R.string.upcoming_open),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clickable(onClick = onOpenUpcoming)
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+            )
+        }
         when (val titles = state.titles) {
             UiState.Loading -> LoadingState()
             is UiState.Error -> ErrorState(stringResource(titles.message), onRetry)

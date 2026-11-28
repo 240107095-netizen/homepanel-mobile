@@ -155,4 +155,26 @@
     <string name="job_episodes">ep %1$d of %2$d</string>
     <string name="job_season">S%1$d</string>
     <string name="msg_job_retried">▶ %1$s — restarted</string>
+    <string name="upcoming_title">New episodes</string>
+    <string name="upcoming_open">new episodes ▸</string>
+    <string name="upcoming_loading">Asking TVmaze about your series…</string>
+    <string name="upcoming_empty">No series to check</string>
+    <string name="upcoming_empty_hint">Series from the library are looked up on TVmaze by title</string>
+    <string name="error_tvmaze">TVmaze is not reachable. Check the internet connection</string>
+    <string name="error_load_upcoming">Could not check new episodes</string>
+    <string name="show_running">running</string>
+    <string name="show_ended">ended</string>
+    <string name="show_tbd">undecided</string>
+    <string name="show_unknown">unknown</string>
+    <string name="upcoming_missing">%1$d new · server has %2$d of %3$d</string>
+    <string name="upcoming_all_here">all %1$d on the server</string>
+    <string name="upcoming_next">next %1$s · %2$s</string>
+    <string name="upcoming_last">last %1$s · %2$s</string>
+    <string name="upcoming_today">today</string>
+    <string name="upcoming_tomorrow">tomorrow</string>
+    <string name="upcoming_summary">behind: %1$d · with a date: %2$d</string>
+    <plurals name="upcoming_in_days">
+        <item quantity="one">in %d day</item>
+        <item quantity="other">in %d days</item>
+    </plurals>
 </resources>
