@@ -3,10 +3,13 @@ package com.example.homepanel.data.network
 import com.example.homepanel.data.network.dto.MdlDetails
 import com.example.homepanel.data.network.dto.MdlJob
 import com.example.homepanel.data.network.dto.MdlJobBody
+import com.example.homepanel.data.network.dto.MdlJobInfo
 import com.example.homepanel.data.network.dto.MdlSearch
+import kotlinx.serialization.json.JsonObject
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 // MediaDL — сервис на сервере, который качает с онлайн-сайтов (HDRezka, AnimeGo)
@@ -30,4 +33,16 @@ interface MediaDlApi {
     // Поставить задачу в очередь (сервер заранее собирает список серий — бывает долго)
     @POST("api/jobs")
     suspend fun createJob(@Body body: MdlJobBody): MdlJob
+
+    // Все задачи: что качается, в очереди, готово или упало
+    @GET("api/jobs")
+    suspend fun jobs(): List<MdlJobInfo>
+
+    // Перезапустить упавшие серии задачи
+    @POST("api/jobs/{id}/retry")
+    suspend fun retry(@Path("id") id: String): JsonObject
+
+    // Жив ли сервис (заодно отдаёт место на диске)
+    @GET("api/status")
+    suspend fun status(): JsonObject
 }

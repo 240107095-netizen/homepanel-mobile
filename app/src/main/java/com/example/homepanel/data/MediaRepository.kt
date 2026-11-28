@@ -2,6 +2,7 @@ package com.example.homepanel.data
 
 import com.example.homepanel.data.model.Episode
 import com.example.homepanel.data.model.OnlineDetails
+import com.example.homepanel.data.model.OnlineJob
 import com.example.homepanel.data.model.OnlineResult
 import com.example.homepanel.data.model.QualityProfile
 import com.example.homepanel.data.model.Release
@@ -24,6 +25,10 @@ interface MediaRepository {
     suspend fun getTorrents(): List<Torrent>
     suspend fun pauseTorrent(hash: String)
     suspend fun resumeTorrent(hash: String)
+
+    // Онлайн-загрузки MediaDL: список задач и перезапуск упавшей
+    suspend fun getOnlineJobs(): List<OnlineJob>
+    suspend fun retryOnlineJob(id: String)
 
     // language — язык интерфейса (en/ru/kk): названия и описания придут на нём
     suspend fun search(query: String, language: String): List<SearchResult>

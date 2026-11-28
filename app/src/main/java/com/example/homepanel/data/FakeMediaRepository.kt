@@ -1,7 +1,9 @@
 package com.example.homepanel.data
 
 import com.example.homepanel.data.model.Episode
+import com.example.homepanel.data.model.JobStatus
 import com.example.homepanel.data.model.MediaStatus
+import com.example.homepanel.data.model.OnlineJob
 import com.example.homepanel.data.model.OnlineDetails
 import com.example.homepanel.data.model.OnlineResult
 import com.example.homepanel.data.model.OnlineSite
@@ -75,6 +77,24 @@ class FakeMediaRepository(private val latencyMs: Long = 400) : MediaRepository {
     override suspend fun getTorrents(): List<Torrent> {
         delay(latencyMs)
         return torrents.toList()
+    }
+
+    private val jobs = mutableListOf(
+        OnlineJob("j1", "Поднятие уровня в одиночку", 2, "AniLibria", isFilm = false, status = JobStatus.RUNNING,
+            progress = 0.42f, doneEpisodes = 5, totalEpisodes = 13, error = "", createdAt = 2.0),
+        OnlineJob("j2", "Шогун", 1, "HDrezka Studio", isFilm = false, status = JobStatus.FAILED,
+            progress = 0.3f, doneEpisodes = 3, totalEpisodes = 10, error = "сайт не отдал серию 4", createdAt = 1.0),
+    )
+
+    override suspend fun getOnlineJobs(): List<OnlineJob> {
+        delay(latencyMs)
+        return jobs.toList()
+    }
+
+    override suspend fun retryOnlineJob(id: String) {
+        delay(latencyMs / 2)
+        val i = jobs.indexOfFirst { it.id == id }
+        if (i >= 0) jobs[i] = jobs[i].copy(status = JobStatus.QUEUED, error = "")
     }
 
     override suspend fun pauseTorrent(hash: String) = setState(hash, TorrentState.PAUSED)

@@ -1,7 +1,9 @@
 package com.example.homepanel.data
 
 import com.example.homepanel.data.model.Episode
+import com.example.homepanel.data.model.JobStatus
 import com.example.homepanel.data.model.OnlineDetails
+import com.example.homepanel.data.model.OnlineJob
 import com.example.homepanel.data.model.OnlineResult
 import com.example.homepanel.data.model.OnlineSite
 import com.example.homepanel.data.model.QualityProfile
@@ -75,6 +77,15 @@ class NetworkMediaRepository(
     override suspend fun getTorrents(): List<Torrent> = qbit.torrents()
     override suspend fun pauseTorrent(hash: String) = qbit.pause(hash)
     override suspend fun resumeTorrent(hash: String) = qbit.resume(hash)
+
+    // Сверху то, что качается или упало, потом очередь, готовое внизу; внутри — новые выше
+    override suspend fun getOnlineJobs(): List<OnlineJob> =
+        mediaDl.jobs().map { it.toModel() }
+            .sortedWith(compareBy<OnlineJob> { JOB_ORDER.indexOf(it.status) }.thenByDescending { it.createdAt })
+
+    override suspend fun retryOnlineJob(id: String) {
+        mediaDl.retry(id)
+    }
 
     override suspend fun search(query: String, language: String): List<SearchResult> {
         // Пробел — %20, а не «+»: иначе Jellyseerr отвечает 400
@@ -185,6 +196,7 @@ class NetworkMediaRepository(
     private companion object {
         // Трекеры только с аниме: для обычного кино там один шум
         val ANIME_ONLY_INDEXERS = setOf("Nyaa.si", "Anime Tosho")
+        val JOB_ORDER = listOf(JobStatus.RUNNING, JobStatus.FAILED, JobStatus.QUEUED, JobStatus.DONE)
     }
 
     private suspend fun <T> probe(block: suspend () -> T): T? = try {
