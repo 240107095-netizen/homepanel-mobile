@@ -111,6 +111,7 @@ class NetworkMediaRepository(
         val js = async { probe { seerr.status().version } }
         val ra = async { probe { radarr.status().version } }
         val disks = async { probe { radarr.diskSpace() } }
+        val md = async { probe { mediaDl.status() } }
 
         val info = jf.await()
         val disk = disks.await()?.let { list -> list.firstOrNull { it.path == "/data" } ?: list.maxByOrNull { it.totalSpace } }
@@ -125,6 +126,8 @@ class NetworkMediaRepository(
                 service("qBittorrent", qb.await()),
                 service("Jellyseerr", js.await()),
                 service("Radarr", ra.await()),
+                // MediaDL версию не отдаёт — только «жив или нет»
+                ServiceStatus("MediaDL", md.await() != null, null),
             ),
         )
     }

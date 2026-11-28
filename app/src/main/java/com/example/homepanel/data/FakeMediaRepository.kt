@@ -135,6 +135,7 @@ class FakeMediaRepository(private val latencyMs: Long = 400) : MediaRepository {
                 ServiceStatus("qBittorrent", true, "5.1"),
                 ServiceStatus("Jellyseerr", false, null),
                 ServiceStatus("Radarr", true, "5.x"),
+                ServiceStatus("MediaDL", true, null),
             ),
         )
     }
